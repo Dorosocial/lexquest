@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LexQuest — Ghana Company Law</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0a06;--surface:#13110c;--surface2:#1c1914;--border:#2e2820;
+  --gold:#c9a84c;--gold2:#e8c97a;--cream:#f0e8d5;--muted:#6b5f48;
+  --text:#e8dcc8;--correct:#4caf7d;--wrong:#c94c4c;--r:8px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(201,168,76,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes confettiFall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(201,168,76,.3)}50%{box-shadow:0 0 24px rgba(201,168,76,.7)}}
+.screen{display:none;position:relative;z-index:1}
+.screen.active{display:flex}
+
+/* SPLASH */
+#splash{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center}
+.splash-seal{width:90px;height:90px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 1.5rem;background:var(--surface);animation:fadeIn .8s ease both,glow 3s infinite}
+.splash-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem;animation:fadeUp .5s ease both}
+.splash-title{font-family:'Playfair Display',serif;font-size:clamp(3rem,10vw,6rem);font-weight:900;line-height:.95;color:var(--cream);animation:fadeUp .6s .1s ease both}
+.splash-title em{color:var(--gold);font-style:italic;display:block}
+.splash-sub{font-size:.85rem;color:var(--muted);margin-top:1rem;max-width:440px;line-height:1.7;animation:fadeUp .6s .2s ease both;font-family:'IBM Plex Mono',monospace}
+.splash-stats{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:1.5rem;animation:fadeUp .6s .3s ease both}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:.35rem .9rem;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.08em;color:var(--muted)}
+.stat-chip strong{color:var(--gold)}
+.btn-start{margin-top:2rem;padding:.9rem 2.8rem;background:var(--gold);color:var(--bg);font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;letter-spacing:.05em;border:none;border-radius:var(--r);cursor:pointer;transition:transform .15s,box-shadow .15s;animation:fadeUp .6s .4s ease both}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.35)}
+.splash-divider{width:60px;height:1px;background:var(--border);margin:1.5rem auto;animation:fadeIn .6s .5s ease both}
+.splash-book{font-family:'IBM Plex Mono',monospace;font-size:.63rem;color:var(--muted);letter-spacing:.04em;animation:fadeUp .6s .5s ease both;line-height:1.8}
+
+/* MAP */
+#map{flex-direction:column;align-items:center;padding:2rem 1.5rem 4rem;min-height:100vh}
+.map-header{width:100%;max-width:980px;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)}
+.map-title-area h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.5rem);color:var(--cream)}
+.map-title-area p{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:.3rem;letter-spacing:.05em}
+.hud{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem}
+.hud-xp{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold)}
+.hud-xp span{font-size:.8rem;font-family:'IBM Plex Mono',monospace;color:var(--muted)}
+.xp-bar-wrap{width:160px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;height:5px;overflow:hidden}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .7s cubic-bezier(.34,1.56,.64,1)}
+.xp-label{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.08em}
+.chapters-list{width:100%;max-width:980px;display:flex;flex-direction:column;gap:.6rem}
+.chapter-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
+.chapter-item:hover:not(.locked){border-color:rgba(201,168,76,.25)}
+.chapter-item.locked{opacity:.4}
+.chapter-header{display:flex;align-items:center;gap:1rem;padding:1.1rem 1.3rem;cursor:pointer;user-select:none}
+.chapter-item.locked .chapter-header{cursor:not-allowed}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.15em;color:var(--muted);flex-shrink:0;width:30px}
+.ch-info{flex:1}
+.ch-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);line-height:1.2}
+.ch-sub{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:.2rem;letter-spacing:.03em}
+.ch-right{display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.ch-stars{display:flex;gap:2px}
+.ch-star{font-size:.7rem;color:var(--border)}
+.ch-star.on{color:var(--gold)}
+.ch-done{width:18px;height:18px;border-radius:50%;background:var(--correct);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;font-weight:700}
+.ch-lock{font-size:.8rem;color:var(--muted)}
+.chapter-quizzes{display:none;border-top:1px solid var(--border);padding:.6rem;gap:.5rem;flex-wrap:wrap}
+.chapter-item.open .chapter-quizzes{display:flex}
+.quiz-type-btn{flex:1;min-width:140px;padding:.8rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.quiz-type-btn:hover{border-color:var(--gold);background:rgba(201,168,76,.05)}
+.qtb-label{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:.2rem}
+.qtb-title{font-family:'IBM Plex Sans',sans-serif;font-size:.82rem;color:var(--cream);font-weight:500}
+.qtb-desc{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:.2rem}
+.qtb-score{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--correct);margin-top:.3rem}
+
+/* QUIZ */
+#quiz{flex-direction:column;align-items:center;padding:2rem 1.5rem 4rem;min-height:100vh}
+.quiz-topbar{width:100%;max-width:700px;display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem}
+.btn-back{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.45rem .75rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:.68rem;cursor:pointer;transition:color .15s,border-color .15s;flex-shrink:0}
+.btn-back:hover{color:var(--cream);border-color:var(--cream)}
+.quiz-meta{flex:1}
+.quiz-chapter-name{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.quiz-type-tag{font-family:'IBM Plex Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:.15rem}
+.quiz-live-score{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);flex-shrink:0}
+.quiz-prog-bar{width:100%;max-width:700px;background:var(--surface2);border-radius:99px;height:3px;margin-bottom:1.5rem;overflow:hidden}
+.quiz-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .4s ease}
+.q-card{width:100%;max-width:700px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.8rem;animation:slideIn .3s ease both}
+.q-badge{display:inline-flex;align-items:center;gap:.35rem;font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.25rem .6rem;margin-bottom:1rem}
+.q-num{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:.4rem;letter-spacing:.08em}
+.q-text{font-family:'Playfair Display',serif;font-size:clamp(1.05rem,2.5vw,1.3rem);line-height:1.5;color:var(--cream);margin-bottom:1.5rem}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+@media(max-width:480px){.options-grid{grid-template-columns:1fr}}
+.opt-btn{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:.9rem 1rem;text-align:left;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;line-height:1.5;cursor:pointer;transition:border-color .15s,background .15s,transform .12s;display:flex;align-items:flex-start;gap:.6rem}
+.opt-letter{font-family:'IBM Plex Mono',monospace;font-size:.6rem;background:var(--border);border-radius:3px;padding:.15rem .35rem;flex-shrink:0;margin-top:.1rem;transition:background .15s,color .15s}
+.opt-btn:hover:not(:disabled){border-color:rgba(201,168,76,.5);transform:translateY(-1px)}
+.opt-btn:hover:not(:disabled) .opt-letter{background:rgba(201,168,76,.2)}
+.opt-btn:disabled{cursor:default}
+.opt-btn.correct{border-color:var(--correct);background:rgba(76,175,125,.07);animation:pop .3s}
+.opt-btn.correct .opt-letter{background:var(--correct);color:#fff}
+.opt-btn.wrong{border-color:var(--wrong);background:rgba(201,76,76,.07);animation:shake .3s}
+.opt-btn.wrong .opt-letter{background:var(--wrong);color:#fff}
+.tf-row{display:flex;gap:.7rem}
+.tf-btn{flex:1;padding:1.1rem;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--cream);font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;cursor:pointer;transition:border-color .15s,background .15s,transform .12s}
+.tf-btn:hover:not(:disabled){transform:translateY(-1px)}
+.tf-btn[data-val="true"]:hover:not(:disabled){border-color:var(--correct);background:rgba(76,175,125,.07)}
+.tf-btn[data-val="false"]:hover:not(:disabled){border-color:var(--wrong);background:rgba(201,76,76,.07)}
+.tf-btn.correct{border-color:var(--correct);background:rgba(76,175,125,.07);animation:pop .3s}
+.tf-btn.wrong{border-color:var(--wrong);background:rgba(201,76,76,.07);animation:shake .3s}
+.fill-wrap{display:flex;flex-direction:column;gap:.6rem}
+.fill-input{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:.9rem 1.1rem;color:var(--cream);font-family:'IBM Plex Mono',monospace;font-size:.85rem;width:100%;outline:none;transition:border-color .15s}
+.fill-input:focus{border-color:rgba(201,168,76,.5)}
+.fill-input.correct{border-color:var(--correct);background:rgba(76,175,125,.06)}
+.fill-input.wrong{border-color:var(--wrong);background:rgba(201,76,76,.06);animation:shake .3s}
+.btn-check{align-self:flex-start;padding:.6rem 1.8rem;background:var(--gold);color:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:.75rem;letter-spacing:.08em;border:none;border-radius:6px;cursor:pointer;transition:transform .12s,box-shadow .12s;font-weight:500}
+.btn-check:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,.3)}
+.btn-check:disabled{opacity:.35;cursor:default;transform:none;box-shadow:none}
+.feedback{margin-top:1rem;padding:.9rem 1.1rem;border-radius:8px;font-size:.78rem;line-height:1.6;display:none;animation:fadeIn .2s ease}
+.feedback.show{display:flex;align-items:flex-start;gap:.6rem}
+.feedback.ok{background:rgba(76,175,125,.07);border:1px solid rgba(76,175,125,.25);color:#6dd9a3}
+.feedback.bad{background:rgba(201,76,76,.07);border:1px solid rgba(201,76,76,.25);color:#e07070}
+.fb-icon{font-size:1rem;flex-shrink:0;margin-top:.1rem}
+.reveal-wrap{margin-top:.9rem;border:1.5px dashed var(--border);border-radius:8px;overflow:hidden;transition:border-color .15s}
+.reveal-wrap:hover{border-color:rgba(201,168,76,.3)}
+.reveal-tap{padding:1rem 1.2rem;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:center;user-select:none}
+.reveal-wrap.open{border-style:solid;border-color:rgba(201,168,76,.25)}
+.reveal-wrap.open .reveal-tap{color:var(--gold);cursor:default}
+.reveal-body{display:none;padding:0 1.2rem 1.1rem;font-family:'IBM Plex Sans',sans-serif;font-size:.8rem;color:var(--gold2);line-height:1.7}
+.reveal-body.show{display:block;animation:fadeIn .25s ease}
+.reveal-body .rl{font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.reveal-body .case-cite{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--gold);margin-top:.6rem;padding-top:.5rem;border-top:1px solid var(--border)}
+.btn-next{display:none;margin-top:.9rem;width:100%;padding:.85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:border-color .15s,background .15s}
+.btn-next:hover{border-color:var(--gold);background:rgba(201,168,76,.05)}
+.btn-next.show{display:block;animation:fadeIn .25s ease}
+.xp-pop{position:fixed;font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gold);pointer-events:none;z-index:10000;animation:fadeUp .7s ease forwards;text-shadow:0 0 10px rgba(201,168,76,.5)}
+.streak-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(70px);background:var(--surface2);border:1px solid var(--gold);border-radius:99px;padding:.5rem 1.2rem;font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.08em;color:var(--gold);z-index:10000;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+.streak-toast.show{transform:translateX(-50%) translateY(0)}
+
+/* RESULTS */
+#results{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:3rem 1.5rem;text-align:center}
+.res-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);animation:fadeUp .4s ease both}
+.res-score{font-family:'Playfair Display',serif;font-size:clamp(5rem,16vw,9rem);line-height:.85;animation:fadeUp .5s .1s ease both}
+.res-score .big{color:var(--gold)}
+.res-score .denom{font-size:38%;color:var(--muted)}
+.res-verdict{font-family:'Playfair Display',serif;font-style:italic;font-size:1.2rem;color:var(--muted);margin-top:.5rem;animation:fadeUp .5s .2s ease both}
+.res-badges{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:1.8rem;animation:fadeUp .5s .3s ease both}
+.res-badge{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.7rem 1rem;font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--muted)}
+.res-badge .bi{font-size:.95rem;display:block;margin-bottom:.25rem}
+.res-badge strong{color:var(--cream);display:block;font-size:.75rem}
+.res-btns{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:2rem;animation:fadeUp .5s .4s ease both}
+.btn-retry,.btn-map2{padding:.8rem 1.8rem;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:.75rem;letter-spacing:.08em;cursor:pointer;border:none;transition:transform .12s,box-shadow .12s}
+.btn-retry{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+.btn-retry:hover{transform:translateY(-2px);border-color:var(--gold)}
+.btn-map2{background:var(--gold);color:var(--bg);font-weight:500}
+.btn-map2:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,168,76,.3)}
+.review-section{width:100%;max-width:640px;margin-top:2rem;text-align:left;animation:fadeUp .5s .5s ease both}
+.review-section h3{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.8rem 1rem;margin-bottom:.4rem;font-size:.72rem;line-height:1.5;display:flex;align-items:flex-start;gap:.6rem}
+.r-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:.3rem}
+.r-dot.c{background:var(--correct)}.r-dot.w{background:var(--wrong)}
+.r-q{color:var(--muted);font-size:.67rem;font-family:'IBM Plex Mono',monospace}
+.r-a{color:var(--cream);font-family:'IBM Plex Sans',sans-serif}
+.confetti-piece{position:fixed;pointer-events:none;z-index:10001;animation:confettiFall linear forwards}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div id="splash" class="screen active">
+  <div class="splash-seal">⚖️</div>
+  <div class="splash-eyebrow">Ghana Company Law · Act 992</div>
+  <h1 class="splash-title">Lex<em>Quest</em></h1>
+  <p class="splash-sub">196 exam-quality questions drawn directly from Modern Principles of Company Law in Ghana. Test topics. Test cases. Conquer your exams.</p>
+  <div class="splash-stats">
+    <div class="stat-chip"><strong>14</strong> Chapters</div>
+    <div class="stat-chip"><strong>196</strong> Questions</div>
+    <div class="stat-chip"><strong>2</strong> Tracks</div>
+    <div class="stat-chip"><strong>No</strong> Login Needed</div>
+  </div>
+  <button class="btn-start" onclick="showMap()">BEGIN STUDY SESSION →</button>
+  <div class="splash-divider"></div>
+  <div class="splash-book">Ferdinand D. Adadzi · Partner, AB & David<br>Lecturer, Faculty of Law, GIMPA</div>
+</div>
+
+<div id="map" class="screen">
+  <div class="map-header">
+    <div class="map-title-area">
+      <h2>Chapter Map</h2>
+      <p>Click a chapter → choose Topics or Cases quiz</p>
+    </div>
+    <div class="hud">
+      <div class="hud-xp"><span>XP </span><span id="totalXP">0</span></div>
+      <div class="xp-bar-wrap"><div class="xp-bar-fill" id="globalXpBar" style="width:0%"></div></div>
+      <div class="xp-label" id="globalXpLabel">0 / 1960 XP</div>
+    </div>
+  </div>
+  <div class="chapters-list" id="chaptersList"></div>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="quiz-topbar">
+    <button class="btn-back" onclick="showMap()">← MAP</button>
+    <div class="quiz-meta">
+      <div class="quiz-chapter-name" id="quizChapterName"></div>
+      <div class="quiz-type-tag" id="quizTypeTag"></div>
+    </div>
+    <div class="quiz-live-score" id="quizLiveScore">0</div>
+  </div>
+  <div class="quiz-prog-bar"><div class="quiz-prog-fill" id="quizProgFill" style="width:0%"></div></div>
+  <div id="questionArea"></div>
+</div>
+
+<div id="results" class="screen">
+  <div class="res-eyebrow" id="resEyebrow">Quiz Complete</div>
+  <div class="res-score"><span class="big" id="resBig">0</span><span class="denom" id="resDenom">/7</span></div>
+  <div class="res-verdict" id="resVerdict"></div>
+  <div class="res-badges" id="resBadges"></div>
+  <div class="review-section" id="reviewSection"></div>
+  <div class="res-btns">
+    <button class="btn-retry" onclick="retryQuiz()">↺ RETRY</button>
+    <button class="btn-map2" onclick="showMap()">MAP →</button>
+  </div>
+</div>
+<div class="streak-toast" id="streakToast">🔥 STREAK!</div>
+
+<script>
+const DATA = [
+  { ch:0, track:"topics", questions:[
+    {type:"mc",q:"In the strict sense, company law in Ghana refers to:",opts:["All laws that affect the activities of companies","The Companies Act 2019 (Act 992) and decided cases interpreting it","Only the Constitution 1992 as it applies to companies","The Companies Act 1963 (Act 179) exclusively"],answer:1,explain:"In the strict sense, company law refers to the Companies Act 2019 (Act 992), authoritative interpretations of its provisions, and statutory restatements of common law and equity principles developed under it.",cite:"Adadzi, Modern Principles of Company Law in Ghana, Chapter 1"},
+    {type:"tf",q:"The Companies Act 2019 (Act 992) abrogates legislation relating to companies carrying on banking or insurance business in Ghana.",answer:false,explain:"Section 4 of Act 992 expressly provides that it does not abrogate or affect legislation relating to companies carrying on banking, insurance or any other business regulated by a specific enactment.",cite:"Section 4, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which of the following is a PRIMARY source of company law in Ghana?",opts:["Commentaries by legal scholars","The Companies Act 2019 (Act 992)","The Gower's Report","Textbooks on company law"],answer:1,explain:"Primary sources of company law are statutes (including Act 992) and decided cases (common law and equity). Commentaries, memoranda and textbooks are secondary sources.",cite:"Adadzi, Chapter 1.3"},
+    {type:"fill",q:"The report by L.C.B Gower that provided explanatory comments on the Companies Act 1963 (Act 179) is known as the _____ Report.",answer:"Gower's",explain:"The Gower's Report was prepared by Professor Gower and remains a useful aid to interpretation of Act 992.",cite:"Adadzi, Chapter 1.2"},
+    {type:"mc",q:"Which case established in Ghana that a company, as a legal person, may invoke the original jurisdiction of the Supreme Court?",opts:["Morkor v Kuma","In re West Coast Dyeing Industry Ltd","Adehyeman Gardens v Assibey","Akoto v Akoto"],answer:1,explain:"In In re West Coast Dyeing Industry Ltd: Adams v Tandoh [1984-86] 2 GLR 561, Abban JA confirmed that companies as legal persons may invoke the original jurisdiction of the Supreme Court.",cite:"In re West Coast Dyeing Industry Ltd [1984-86] 2 GLR 561"},
+    {type:"tf",q:"Under Act 992, the Registrar of Companies has an express power to refuse to register a company on the ground that its proposed business is unlawful.",answer:false,explain:"Unlike the repealed Act 179, Act 992 does not expressly confer such power because Act 992 does not require promoters to state an authorised business object.",cite:"Adadzi, Chapter 1.2; Section 6, Act 992"},
+    {type:"mc",q:"Which legislation currently applies to ALL companies in Ghana?",opts:["Companies Act 1963 (Act 179)","Companies Act 2006","Companies Act 2019 (Act 992)","Ghana Investment Promotion Centre Act 2013 (Act 865)"],answer:2,explain:"The Companies Act 2019 (Act 992) is the current principal statute governing companies in Ghana. Section 1 provides it applies to all companies in Ghana.",cite:"Section 1, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:0, track:"cases", questions:[
+    {type:"mc",q:"In Salomon v Salomon & Co Ltd [1897] AC 22, what was the central legal issue before the House of Lords?",opts:["Whether a promoter must disclose profits to the company","Whether a one-man company was a valid separate legal person from its sole controller","Whether the ultra vires doctrine applied to debenture holders","Whether a company could sue its own director"],answer:1,explain:"The House of Lords reversed the Court of Appeal and held that once a company is validly incorporated, it is a separate legal person entirely distinct from its members — even if one person holds virtually all the shares.",cite:"Salomon v Salomon & Co Ltd [1895-9] All ER 33; [1897] AC 22"},
+    {type:"tf",q:"Lord Macnaghten in Salomon v Salomon & Co stated that 'the company is at law a different person altogether from the subscribers to the memorandum.'",answer:true,explain:"Lord Macnaghten stated at pg. 52 that the company is at law a different person altogether from the subscribers to the memorandum.",cite:"Salomon v Salomon & Co Ltd [1897] AC 22, per Lord Macnaghten"},
+    {type:"mc",q:"In Trevor v Whitworth (1887), the House of Lords established which principle?",opts:["Separate legal personality of a registered company","The capital maintenance principle — a company cannot return capital to shareholders except as permitted by law","The indoor management rule","The ultra vires doctrine"],answer:1,explain:"Trevor v Whitworth established the capital maintenance principle — a company cannot purchase its own shares, as this amounts to returning capital to members in breach of the principle of maintaining capital for creditors.",cite:"Trevor v Whitworth (1887) 12 App Cas 409 (H.L.)"},
+    {type:"fill",q:"The case that established the majority rule principle and the proper plaintiff rule is _____ v Harbottle.",answer:"Foss",explain:"Foss v Harbottle (1843) 2 Hare 461 established two rules: (1) the majority rule and (2) the proper plaintiff rule — the company is the proper plaintiff for wrongs done to it.",cite:"Foss v Harbottle (1843) 2 Hare 461"},
+    {type:"mc",q:"Ashbury Railway Carriage and Iron Co v Riche (1875) LR 7 HL established which doctrine?",opts:["The doctrine of corporate veil","The presumption of regularity","The ultra vires rule — a company cannot act beyond its objects","The capital maintenance principle"],answer:2,explain:"The House of Lords held that a company incorporated with specific objects cannot validly enter into contracts beyond those objects — establishing the ultra vires doctrine.",cite:"Ashbury Railway Carriage and Iron Co v Riche (1875) LR 7 HL 653"},
+    {type:"tf",q:"Royal British Bank v Turquand (1856) established that outsiders dealing with a company must inquire into all internal proceedings before relying on an officer's authority.",answer:false,explain:"Turquand established the opposite — the indoor management rule. An outsider dealing in good faith is entitled to presume that all internal requirements have been duly complied with.",cite:"Royal British Bank v Turquand (1856) 6 E&B 327"},
+    {type:"mc",q:"Which case was described by Adadzi as establishing the rationale for the capital maintenance principle?",opts:["Salomon v Salomon","Foss v Harbottle","Trevor v Whitworth","Royal British Bank v Turquand"],answer:2,explain:"Trevor v Whitworth established and explained the capital maintenance principle: that once capital is subscribed, it must be maintained and cannot be returned except in accordance with the law.",cite:"Trevor v Whitworth (1887) 12 App Cas 409"}
+  ]},
+  { ch:1, track:"topics", questions:[
+    {type:"mc",q:"Which of the following is an UNINCORPORATED entity under Ghanaian law?",opts:["A company limited by shares","A statutory corporation","A partnership","An incorporated trust"],answer:2,explain:"A partnership is an unincorporated entity — it has no legal personality separate from its partners.",cite:"Adadzi, Chapter 2.2"},
+    {type:"tf",q:"A sole proprietorship in Ghana has a legal personality separate from the owner.",answer:false,explain:"A sole proprietorship is an unincorporated entity with no legal personality separate from the owner.",cite:"Adadzi, Chapter 2.3.1"},
+    {type:"mc",q:"What is the key legal consequence distinguishing an incorporated entity from an unincorporated one?",opts:["Incorporated entities pay lower taxes","Incorporated entities have separate legal personality and limited liability","Unincorporated entities can have more members","Incorporated entities cannot enter into contracts"],answer:1,explain:"The fundamental difference is separate legal personality: an incorporated entity is a legal person distinct from its members.",cite:"Adadzi, Chapter 2.2"},
+    {type:"fill",q:"Registration of a business name by a sole proprietor does NOT confer _____ personality on the business.",answer:"legal",explain:"Registration of a business name merely makes the proprietor's identity public. It does not create a new legal person.",cite:"Adadzi, Chapter 2.3.1.1"},
+    {type:"mc",q:"In Appenteng and others v Bank of West Africa Ltd [1961] GLR 196, the court held that:",opts:["A partnership has separate legal personality","Partners are not personally liable for firm debts","A partnership is not a legal person separate from its partners, so partners can be personally sued for firm debts","A partnership deed must be registered to be valid"],answer:2,explain:"The court affirmed that a partnership has no legal personality separate from its partners. Creditors can sue individual partners personally for the full amount of the firm's debts.",cite:"Appenteng and others v Bank of West Africa Ltd [1961] GLR 196 (H.C.)"},
+    {type:"tf",q:"A cooperative society registered under the Cooperative Societies Decree 1968 (NRCD 39) has a legal personality separate from its members.",answer:true,explain:"A cooperative society upon registration becomes an incorporated entity with separate legal personality.",cite:"Adadzi, Chapter 2.3.4"},
+    {type:"mc",q:"What is the primary distinction between a statutory corporation and a company registered under Act 992?",opts:["A statutory corporation cannot own property","A statutory corporation is created by a specific Act of Parliament, not by registration","A company cannot have perpetual succession","Statutory corporations have no board of directors"],answer:1,explain:"A statutory corporation is created by a specific Act of Parliament. A company is formed by registration under Act 992.",cite:"Adadzi, Chapter 2.3.3"}
+  ]},
+  { ch:1, track:"cases", questions:[
+    {type:"mc",q:"In Adehyeman Gardens Ltd v Assibey [2003-2004] 2 SCGLR 1016, the Supreme Court considered whether:",opts:["A promoter had disclosed profits to the company","A subscriber to the regulations of a company automatically becomes a member on incorporation","The corporate veil should be lifted for tax fraud","A director had breached his duty of care"],answer:1,explain:"The Supreme Court affirmed that subscribers who sign the regulations and are named in the application for incorporation become members upon incorporation.",cite:"Adehyeman Gardens Ltd v Assibey [2003-2004] 2 SCGLR 1016"},
+    {type:"tf",q:"In Akoto v Akoto [2011] SCGLR 533, the court held that a partnership agreement need not be in writing to be legally binding.",answer:true,explain:"The Supreme Court affirmed that a partnership agreement does not need to be in writing to be valid and enforceable.",cite:"Akoto v Akoto [2011] SCGLR 533"},
+    {type:"mc",q:"In Anderson Ltd v Daniel [1924] 1 KB 138, the court illustrated what principle?",opts:["Partners have unlimited liability for firm debts","A firm name registration creates separate legal personality","Where a statutory requirement for forming a contract is not complied with, the contract is illegal and unenforceable","Partners owe fiduciary duties to each other"],answer:2,explain:"Anderson Ltd v Daniel established that where a statute requires a specific formality and it is not complied with, the contract is illegal and unenforceable.",cite:"Anderson Ltd v Daniel [1924] 1 KB 138"},
+    {type:"fill",q:"In partnership law, the rule that each partner is an agent of the firm and can bind all other partners in ordinary course transactions is called _____ authority.",answer:"implied",explain:"Each partner has implied (or usual) authority to bind the firm in transactions within the ordinary course of the firm's business.",cite:"Adadzi, Chapter 2.3.2"},
+    {type:"mc",q:"In re Northern Engineering Co Ltd [1979] GLR 477, Taylor J confirmed which principle?",opts:["Subscribers must pay for their shares immediately on incorporation","Subscribers to the regulations are ipso facto members from incorporation","Subscribers can withdraw before the certificate of incorporation is issued","Subscribers are not bound until they pay consideration"],answer:1,explain:"Taylor J confirmed that registration ipso facto makes a subscriber automatically a member, even if the company makes default in allotting shares.",cite:"In re Northern Engineering Co Ltd [1979] GLR 477"},
+    {type:"tf",q:"A Non-Governmental Organisation registered as a company limited by guarantee under Act 992 has separate legal personality from its members.",answer:true,explain:"An NGO registered as a company limited by guarantee under Act 992 is an incorporated entity with full separate legal personality.",cite:"Adadzi, Chapter 2.3.8"},
+    {type:"mc",q:"Which of the following entities is created by an Act of Parliament rather than by registration?",opts:["A company limited by shares","A cooperative society","The Bank of Ghana","A company limited by guarantee"],answer:2,explain:"The Bank of Ghana is a statutory corporation created by the Bank of Ghana Act 2002 (Act 612), not by registration under the Companies Act.",cite:"Adadzi, Chapter 2.3.3"}
+  ]},
+  { ch:2, track:"topics", questions:[
+    {type:"mc",q:"Under section 6 of Act 992, who may form a company in Ghana?",opts:["Only Ghanaian citizens or Ghanaian companies","One or more persons — natural or artificial","Only persons over 18 years of age","Only professional bodies registered in Ghana"],answer:1,explain:"Section 6 provides that 'one or more persons may form an incorporated company under this Act.' Natural or artificial persons (including foreign corporations) may form a company.",cite:"Section 6, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"Under Act 992, a private company may have more than fifty members together with debenture holders.",answer:false,explain:"Section 7(5) provides that the membership of a private company, together with debenture holders, shall not exceed fifty persons.",cite:"Section 7(5), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"What is the legal effect of the Certificate of Incorporation issued under Act 992?",opts:["It is prima facie evidence of incorporation only","It is conclusive evidence that all requirements of the Act have been complied with and the company is duly incorporated","It can be challenged within twelve months of issue","It is merely a receipt for registration fees paid"],answer:1,explain:"Under Act 992, the Certificate of Incorporation is conclusive evidence that all requirements of the Act have been complied with.",cite:"Section 34, Companies Act 2019 (Act 992)"},
+    {type:"fill",q:"A company in which the public may freely subscribe for its shares or debentures is called a _____ company.",answer:"public",explain:"A public company is one whose shares and debentures may be offered to the public.",cite:"Section 7(2), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Under Act 992, which type of company requires members to contribute a specified amount to company assets in the event of winding up?",opts:["Company limited by shares","Unlimited company","Company limited by guarantee","External company"],answer:2,explain:"In a company limited by guarantee, members agree to contribute a specified sum if the company is wound up.",cite:"Section 10(1)(c), Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"A company's name must end with the word 'Limited' or 'Ltd' if it is a private company limited by shares under Act 992.",answer:true,explain:"Section 21 of Act 992 requires a company limited by shares to include 'Limited' or 'Ltd' as the last word of its name.",cite:"Section 21, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which case affirmed that a sole shareholder has NO insurable interest in the company's assets?",opts:["Salomon v Salomon","Macaura v Northern Assurance Co [1925] AC 619","Foss v Harbottle","Gilford Motor Co v Horne"],answer:1,explain:"In Macaura v Northern Assurance Co, the House of Lords held that Macaura as a sole shareholder had no insurable interest in the company's property — it belonged to the company, not him.",cite:"Macaura v Northern Assurance Co [1925] AC 619"}
+  ]},
+  { ch:2, track:"cases", questions:[
+    {type:"mc",q:"What fundamental principle does Salomon v Salomon & Co Ltd [1897] AC 22 establish regarding a company formed by one dominant shareholder?",opts:["Such a company is a sham and will be ignored by the courts","The company is a valid separate legal person even if formed mainly by one person who owns almost all shares","One-person companies are prohibited by English and Ghanaian law","A company must have at least seven genuine independent shareholders"],answer:1,explain:"The House of Lords held that Salomon & Co Ltd was a valid legal entity separate from Salomon. The motives behind incorporation are irrelevant — once legally incorporated, the company is a separate person.",cite:"Salomon v Salomon & Co Ltd [1897] AC 22"},
+    {type:"tf",q:"In Hickman v Kent or Romney Marsh Sheep-Breeders Association [1915] 1 Ch 881, the court held that the articles of association create a binding contract between the company and its members.",answer:true,explain:"Astbury J held that the articles constitute a contract between the company and its members in their capacity as members.",cite:"Hickman v Kent or Romney Marsh Sheep-Breeders Association [1915] 1 Ch 881"},
+    {type:"mc",q:"In Re Natal Land and Colonization Co [1904] 2 Ch 303, the court held:",opts:["A company is automatically bound by all pre-incorporation contracts","A company cannot ratify a pre-incorporation contract at common law because it was not in existence at the time","A company must ratify all pre-incorporation contracts within three months","A company's first board meeting automatically ratifies all pre-incorporation contracts"],answer:1,explain:"At common law, a company cannot ratify a pre-incorporation contract because ratification requires the principal to have been in existence at the time of contracting.",cite:"Re Natal Land and Colonization Co [1904] 2 Ch 303"},
+    {type:"fill",q:"The case of Macaura v Northern Assurance Co [1925] AC 619 demonstrates that a shareholder has no _____ interest in the company's property.",answer:"insurable",explain:"The House of Lords held that Macaura as a shareholder had no insurable interest in timber owned by his company — the property belonged to the company.",cite:"Macaura v Northern Assurance Co [1925] AC 619"},
+    {type:"mc",q:"Which case established that a company has the right to bring constitutional cases before the Supreme Court of Ghana?",opts:["Morkor v Kuma","Adehyeman Gardens v Assibey","In re West Coast Dyeing Industry Ltd: Adams v Tandoh","Akoto v Akoto"],answer:2,explain:"In In re West Coast Dyeing Industry Ltd [1984-86] 2 GLR 561, the court affirmed that companies as legal persons may invoke the original jurisdiction of the Supreme Court.",cite:"In re West Coast Dyeing Industry Ltd [1984-86] 2 GLR 561"},
+    {type:"tf",q:"An external company incorporated outside Ghana cannot register to carry on business in Ghana under Act 992.",answer:false,explain:"An external company can register to carry on business in Ghana under sections 337 et seq. of Act 992.",cite:"Section 337 et seq., Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"In which case did the House of Lords establish the capital maintenance doctrine?",opts:["Foss v Harbottle","Trevor v Whitworth","Ashbury Railway Carriage v Riche","Re Smith & Fawcett"],answer:1,explain:"Trevor v Whitworth (1887) established the capital maintenance doctrine: a company cannot return capital to its members by purchasing its own shares.",cite:"Trevor v Whitworth (1887) 12 App Cas 409"}
+  ]},
+  { ch:3, track:"topics", questions:[
+    {type:"mc",q:"Under Act 992, a company that does NOT have a registered constitution will be governed by:",opts:["The Companies Act 1963 (Act 179)","The default constitution in the Second, Third or Fourth Schedules of Act 992","The Registrar of Companies' model articles","There are no rules"],answer:1,explain:"Section 25 provides that where a private company has no registered constitution, the rights, powers, duties and obligations shall be as provided in the Second Schedule of Act 992.",cite:"Section 25, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"The constitution of a company under Act 992 creates a binding contract between the company and each member, and between members inter se.",answer:true,explain:"Section 40(1) provides that the constitution, when registered, binds the company and each member as if they had respectively signed and sealed it.",cite:"Section 40, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"In Hickman v Kent or Romney Marsh Sheep-Breeders' Association [1915] 1 Ch 881, Astbury J held that the articles bind:",opts:["Members inter se only, not the company itself","The company and members in their capacity as members, not outsiders","Third parties dealing with the company","The company's creditors"],answer:1,explain:"The court held the articles constitute a contract between the company and its members in their capacity as members. The contract does not extend to outsiders.",cite:"Hickman v Kent or Romney Marsh Sheep-Breeders' Association [1915] 1 Ch 881"},
+    {type:"fill",q:"Under Act 992, a special resolution requires at least _____ percent of votes cast at a general meeting.",answer:"75",explain:"A special resolution requires at least 75% of votes cast by members entitled to vote at a general meeting of which proper notice has been given.",cite:"Section 155, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which case established that the power to alter the articles must be exercised bona fide for the benefit of the company as a whole?",opts:["Foss v Harbottle","Allen v Gold Reefs of West Africa [1900] 1 Ch 656","Salomon v Salomon","Re Smith & Fawcett"],answer:1,explain:"In Allen v Gold Reefs of West Africa, Lindley MR held that the power to alter articles must be exercised bona fide for the benefit of the company as a whole.",cite:"Allen v Gold Reefs of West Africa [1900] 1 Ch 656"},
+    {type:"tf",q:"A shareholders' agreement under Act 992 always takes priority over the registered constitution of the company.",answer:false,explain:"Section 47 provides that in the event of inconsistency between a shareholders' agreement and the registered constitution, the registered constitution shall prevail unless the shareholders' agreement expressly provides otherwise and all shareholders consent.",cite:"Section 47, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which provision is mandatory content of a registered constitution under section 26 of Act 992?",opts:["The dividend policy","The name of the company","The names of all future directors","The company's bank account details"],answer:1,explain:"Section 26 requires the name of the company (with appropriate last word under section 21) as mandatory content of the registered constitution.",cite:"Section 26, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:3, track:"cases", questions:[
+    {type:"mc",q:"In Rayfield v Hands [1960] Ch 1, the court enforced a provision in the articles requiring directors to purchase the shares of a leaving member. This is significant because:",opts:["It allowed non-members to enforce the articles","It enforced a provision as a contract between members inter se in their capacity as members","It allowed shareholders to wind up the company by special resolution","It confirmed that directors are not bound by the articles"],answer:1,explain:"Vaisey J enforced the provision as a contract between members inter se. The case is authority that articles can create enforceable obligations between members.",cite:"Rayfield v Hands [1960] Ch 1"},
+    {type:"tf",q:"In Sidebottom v Kershaw Leese & Co [1920] 1 Ch 154, the Court of Appeal held that an alteration to the articles allowing directors to buy out any competing member was invalid.",answer:false,explain:"The Court of Appeal upheld the alteration as valid — made bona fide for the benefit of the company as a whole.",cite:"Sidebottom v Kershaw Leese & Co [1920] 1 Ch 154"},
+    {type:"mc",q:"In Scott v Frank F Scott (London) Ltd [1940] Ch 794, the court held that:",opts:["A member could enforce a right of pre-emption on shares given in the articles","Articles cannot be altered without unanimous consent","The company could not enforce the articles against shareholders","A provision could not be enforced by a non-member"],answer:0,explain:"The court affirmed that articles giving a member specific rights in their capacity as member — such as a right of pre-emption — are enforceable by that member against the company.",cite:"Scott v Frank F Scott (London) Ltd [1940] Ch 794"},
+    {type:"fill",q:"The case of Allen v Gold Reefs of West Africa [1900] establishes that a power to alter articles must be exercised _____ fide for the benefit of the company as a whole.",answer:"bona",explain:"Lindley MR in Allen v Gold Reefs laid down the test: alterations are valid only if made bona fide for the benefit of the company as a whole.",cite:"Allen v Gold Reefs of West Africa [1900] 1 Ch 656"},
+    {type:"mc",q:"The contractual effect of the constitution under section 40 of Act 992 corresponds to which common law principle?",opts:["The ultra vires doctrine","The rule in Salomon v Salomon","The rule in Hickman v Kent — articles bind company and members inter se","The indoor management rule"],answer:2,explain:"Section 40 codifies the principle from Hickman v Kent — the constitution binds the company and each member as if signed and sealed.",cite:"Section 40, Act 992; Hickman v Kent [1915] 1 Ch 881"},
+    {type:"tf",q:"An outsider (non-member) can directly enforce a right created in the company's constitution against the company.",answer:false,explain:"The contract created by the constitution operates only between the company and its members in their capacity as members. Outsiders cannot enforce the constitution directly.",cite:"Section 40, Act 992; Hickman v Kent [1915] 1 Ch 881"},
+    {type:"mc",q:"Under Act 992, the registered constitution may be amended by:",opts:["A simple majority resolution at a board meeting","A special resolution of members — at least 75% majority of votes cast","A unanimous resolution of shareholders only","The Registrar of Companies upon application"],answer:1,explain:"Section 42 provides that a company may amend its registered constitution by a special resolution requiring 75% of votes cast.",cite:"Section 42, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:4, track:"topics", questions:[
+    {type:"mc",q:"Who is a promoter of a company?",opts:["The first managing director appointed after incorporation","A person who takes the necessary steps to form a company with a view to a commercial enterprise","The Registrar of Companies","A person who buys shares at the time of incorporation"],answer:1,explain:"A promoter is a person who undertakes to form a company with reference to a given project and takes the necessary steps to accomplish that purpose.",cite:"Adadzi, Chapter 5.2"},
+    {type:"tf",q:"A solicitor who advises on the formation of a company is automatically a promoter of that company.",answer:false,explain:"A professional adviser acting in a professional capacity is not a promoter. A promoter personally undertakes to form the company as a commercial principal.",cite:"Adadzi, Chapter 5.2"},
+    {type:"mc",q:"The primary statutory duty of a promoter in Ghana under Act 992 is to:",opts:["Register the company within 30 days","Disclose all material interests and any profit made from the promotion","Appoint the first directors of the company","File the constitution with the Registrar"],answer:1,explain:"Promoters owe a fiduciary duty to the company including the duty to disclose all material facts and any profit made in connection with the promotion.",cite:"Adadzi, Chapter 5.3"},
+    {type:"fill",q:"If a promoter fails to disclose a secret profit, the company may _____ the contract and recover the profit from the promoter.",answer:"rescind",explain:"Where a promoter fails to disclose material facts or a secret profit, the company's remedy is to rescind the contract and/or claim an account of profits.",cite:"Erlanger v New Sombrero Phosphate Co (1878) 3 AC 1218"},
+    {type:"mc",q:"In Erlanger v New Sombrero Phosphate Co (1878) 3 AC 1218, promoters who sell property to the company must:",opts:["Only disclose to the first directors they appoint","Disclose all material facts to an independent board of directors","Pay stamp duty on the transaction","Obtain consent from the Registrar"],answer:1,explain:"The House of Lords held that promoters who sell property to the company must disclose all material facts to an independent board capable of exercising independent judgment.",cite:"Erlanger v New Sombrero Phosphate Co (1878) 3 AC 1218"},
+    {type:"tf",q:"A promoter can validly retain a secret profit provided no one objects within three years.",answer:false,explain:"There is no limitation period defence for a promoter's undisclosed secret profit. Equity requires full disclosure of all profits made in connection with the promotion.",cite:"Gluckstein v Barnes [1900] AC 240"},
+    {type:"mc",q:"Remuneration of a promoter for services before incorporation may validly be paid:",opts:["Automatically as a pre-incorporation contract obligation","Only after a contract for remuneration is entered into by the company after incorporation","By the first directors from company funds immediately upon incorporation","Only if the Registrar approves the payment"],answer:1,explain:"A promoter has no automatic right to remuneration. The company must after incorporation enter into a contract with the promoter to pay for pre-incorporation services.",cite:"Adadzi, Chapter 5.5"}
+  ]},
+  { ch:4, track:"cases", questions:[
+    {type:"mc",q:"In Erlanger v New Sombrero Phosphate Co (1878) 3 AC 1218, Erlanger's syndicate sold a lease to the company at double the purchase price. The court held the contract was:",opts:["Valid because the company accepted it","Voidable at the company's option because material facts were not disclosed to an independent board","Valid because the profit was within a commercial range","Void ab initio for fraud"],answer:1,explain:"The House of Lords held the sale was voidable. The promoters had not disclosed the real purchase price to an independent board — the directors were all nominees of the promoters.",cite:"Erlanger v New Sombrero Phosphate Co (1878) 3 AC 1218"},
+    {type:"tf",q:"In Gluckstein v Barnes [1900] AC 240, the House of Lords allowed the promoter to retain his secret profit because he had made partial disclosure.",answer:false,explain:"The House of Lords held that Gluckstein's partial disclosure was insufficient. He had to account for the full secret profit.",cite:"Gluckstein v Barnes [1900] AC 240"},
+    {type:"mc",q:"In Omnium Electric Palaces v Baines [1914] 1 Ch 332, the court held that a promoter who rendered services before incorporation:",opts:["Is automatically entitled to payment from company funds","Cannot sue the company for those services unless the company enters into a new contract after incorporation","Has a claim in unjust enrichment against the company","Must recover payment from the Registrar"],answer:1,explain:"The court held that a promoter who renders services before incorporation cannot sue the company for those services unless the company after incorporation enters into a new contract to pay.",cite:"Omnium Electric Palaces v Baines [1914] 1 Ch 332"},
+    {type:"fill",q:"In Twycross v Grant, Cockburn CJ defined a promoter as one who undertakes to form a company with reference to a given project and takes certain _____ to accomplish that purpose.",answer:"steps",explain:"Cockburn CJ's classic definition focuses on active steps taken to form the company as the key characteristic of a promoter.",cite:"Twycross v Grant (1877) 2 CPD 469"},
+    {type:"mc",q:"Re Leeds & Hanley Theatres of Varieties [1902] 2 Ch 809 established that promoters:",opts:["Can only be liable for deliberate fraud","Are in a fiduciary relationship with the company and must disclose all material facts","Are not responsible for companies they form unless they become directors","May retain profits if the price is fair"],answer:1,explain:"The Court of Appeal affirmed that promoters stand in a fiduciary relationship to the company. They are under a duty of full disclosure of all material interests and profits.",cite:"Re Leeds & Hanley Theatres of Varieties [1902] 2 Ch 809"},
+    {type:"tf",q:"In Whaley Bridge Calico Printing Co v Green (1880), the court held that the word 'promoter' has a precise legal meaning.",answer:false,explain:"Bowen J stated that 'promoter' is not a term of art in law but a business term. Its scope depends on the facts and circumstances of each case.",cite:"Whaley Bridge Calico Printing Co v Green (1880) 5 QBD 109"},
+    {type:"mc",q:"If a promoter sells his own property to the company without disclosing that he is the vendor, the company's primary remedy is:",opts:["The company can sue the promoter for damages only","The company may rescind the contract and/or sue for account of profits","The company can only report the promoter to the Registrar","The company has no remedy once incorporation is complete"],answer:1,explain:"Where a promoter sells property to the company without disclosing his ownership, the company may rescind the contract and/or require the promoter to account for the profit.",cite:"Erlanger v New Sombrero Phosphate Co (1878); Gluckstein v Barnes [1900]"}
+  ]},
+  { ch:5, track:"topics", questions:[
+    {type:"mc",q:"Under common law, who is personally liable on a pre-incorporation contract purportedly made on behalf of a company not yet formed?",opts:["The company upon incorporation","The Registrar of Companies","The promoter or agent who made the contract","No one — the contract is void"],answer:2,explain:"At common law, a pre-incorporation contract cannot bind the non-existent company and cannot be ratified after incorporation. The promoter or agent is personally liable.",cite:"Kelner v Baxter (1866) LR 2 CP 174"},
+    {type:"tf",q:"Under the Companies Act 2019 (Act 992), a company may ratify a pre-incorporation contract entered into on its behalf before incorporation.",answer:true,explain:"Unlike common law, section 17 of Act 992 provides a statutory mechanism by which a company may after incorporation ratify a pre-incorporation contract.",cite:"Section 17, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"What happens to the promoter's personal liability if a company FAILS to ratify a pre-incorporation contract under section 17 of Act 992?",opts:["The liability transfers to the first board of directors","The promoter remains personally liable on the contract","The third party loses all rights under the contract","The contract becomes void"],answer:1,explain:"If a company fails to ratify a pre-incorporation contract within a reasonable time, the promoter who made the contract remains personally liable to the third party.",cite:"Section 17, Companies Act 2019 (Act 992)"},
+    {type:"fill",q:"In Kelner v Baxter (1866), the court held that a person who signs a contract on behalf of a company not yet in existence is personally _____ on that contract.",answer:"liable",explain:"The court held that where there is no company in existence, the person who signs the contract is personally liable as a principal.",cite:"Kelner v Baxter (1866) LR 2 CP 174"},
+    {type:"mc",q:"In Newborne v Sensolid (GB) Ltd [1954] 1 QB 45, the court refused to hold the promoter personally liable because:",opts:["The company had ratified the contract","The contract was signed in the company's name only, not by the promoter personally","The promoter was protected by the Statute of Limitations","The contract expressly excluded promoter liability"],answer:1,explain:"The document was signed 'Leopold Newborne (London) Ltd' — the company's name only. The Court of Appeal held there was no enforceable contract since the company did not exist.",cite:"Newborne v Sensolid (GB) Ltd [1954] 1 QB 45"},
+    {type:"tf",q:"Under Ghanaian law (Act 992), a company can by conduct — without formal ratification — adopt a pre-incorporation contract.",answer:true,explain:"Section 17 of Act 992 provides that ratification may occur by conduct — the company need not pass a formal resolution.",cite:"Section 17, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which case held that where the contract was signed as the company's contract (not the agent's), the agent is not personally liable even if the company did not exist?",opts:["Phonogram Ltd v Lane","Newborne v Sensolid (GB) Ltd","Black v Smallwood","Hollman v Pullin"],answer:1,explain:"Newborne v Sensolid distinguished Kelner v Baxter — the contract was the company's contract, not the promoter's personal contract.",cite:"Newborne v Sensolid (GB) Ltd [1954] 1 QB 45"}
+  ]},
+  { ch:5, track:"cases", questions:[
+    {type:"mc",q:"In Kelner v Baxter (1866) LR 2 CP 174, the court held:",opts:["The company was bound when incorporated","The contract was void for lack of a principal","The promoters were personally bound as principals since the company did not exist","The wine seller had no remedy"],answer:2,explain:"The court held the promoters were personally liable. There was no company in existence, so the promoters were the principals.",cite:"Kelner v Baxter (1866) LR 2 CP 174"},
+    {type:"tf",q:"In Phonogram Ltd v Lane [1982] QB 938, the Court of Appeal held that personal liability only arises where the agent signed 'subject to a contract being entered into by the company.'",answer:false,explain:"Lord Denning stated the provision was clear — personal liability arises automatically where a person purports to act for or as agent for a company not yet formed.",cite:"Phonogram Ltd v Lane [1982] QB 938"},
+    {type:"mc",q:"In Black v Smallwood [1966] 117 CLR 52, the High Court of Australia held:",opts:["The directors were personally liable on the contract","The contract was void because both parties knew the company did not exist","The contract bound the company when it was incorporated","The third party could claim against directors personally for fraud"],answer:1,explain:"Where both parties knew the company did not exist and the contract was expressed as the company's contract, the contract was void and directors were not personally liable.",cite:"Black v Smallwood [1966] 117 CLR 52"},
+    {type:"fill",q:"The primary remedy of a third party where the company refuses to adopt a pre-incorporation contract at common law is an action against the _____ personally.",answer:"promoter",explain:"At common law, the third party's only remedy is a personal action against the promoter who made the contract.",cite:"Kelner v Baxter (1866)"},
+    {type:"mc",q:"How does section 17 of Act 992 differ from the common law position on pre-incorporation contracts?",opts:["Act 992 makes the company automatically liable from the moment of incorporation","Act 992 allows the company to ratify the contract after incorporation, thereby adopting it and releasing the promoter","Act 992 abolishes all promoter liability","Act 992 requires all pre-incorporation contracts to be void"],answer:1,explain:"Section 17 departs from common law by providing a mechanism for the company to ratify a pre-incorporation contract after incorporation. Upon ratification, the company becomes bound.",cite:"Section 17, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"In Hollman v Pullin (1884), the court held that a person who signs on behalf of an unformed company is always personally liable regardless of how the contract is worded.",answer:false,explain:"The court recognised that whether personal liability arises depends on the construction of the contract — if expressed as the company's contract only, the agent may not be personally liable.",cite:"Hollman v Pullin (1884) Cab & El 254"},
+    {type:"mc",q:"Under section 17 of Act 992, if a company neither ratifies nor repudiates a pre-incorporation contract within a reasonable time, the default position is:",opts:["The contract is automatically ratified","The promoter's liability continues indefinitely","The third party may treat the contract as repudiated and sue the promoter","The Registrar decides the outcome"],answer:2,explain:"If the company fails to ratify within a reasonable time, the promoter remains personally liable. The third party may pursue the promoter on the contract.",cite:"Section 17, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:6, track:"topics", questions:[
+    {type:"mc",q:"The presumption of regularity (indoor management rule) protects:",opts:["Directors from personal liability for company debts","Third parties who deal in good faith with a company by entitling them to assume internal procedures have been complied with","The company from being sued by its own members","Creditors of the company against the corporate veil"],answer:1,explain:"The indoor management rule protects outsiders dealing with a company by allowing them to assume all internal requirements and procedures have been properly complied with.",cite:"Royal British Bank v Turquand (1856) 6 E&B 327"},
+    {type:"tf",q:"Section 121 of Act 992 imposes constructive notice on the public of documents registered with the Registrar of Companies.",answer:false,explain:"Section 149 of Act 992 expressly abolishes constructive notice — a person shall not be deemed to have knowledge of documents merely because they are registered with the Registrar.",cite:"Section 149, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Section 150(1) of Act 992 entitles a person dealing with a company to assume that:",opts:["All directors are duly elected","The company has complied with all obligations to the Registrar","A person described in filed particulars as a director has been duly appointed and has authority to exercise functions of a director","The company has no charges over its assets"],answer:2,explain:"Section 150(1)(b) provides that a person dealing with a company is entitled to assume that a person described as a director in filed particulars has been duly appointed and has authority.",cite:"Section 150(1), Companies Act 2019 (Act 992)"},
+    {type:"fill",q:"The indoor management rule is also known as the presumption of _____, as described by Adadzi.",answer:"regularity",explain:"The 'presumption of regularity' is the academic description of the rule in Royal British Bank v Turquand — it presumes all internal requirements have been properly observed.",cite:"Adadzi, Chapter 7.0"},
+    {type:"mc",q:"Which of the following is an EXCEPTION to the presumption of regularity under Act 992?",opts:["The third party dealt with the company through its managing director","The third party had actual notice that the internal requirement had NOT been complied with","The third party checked the registered constitution before dealing","The third party dealt with the company at arm's length"],answer:1,explain:"One of the main exceptions is where the third party had actual knowledge of the irregularity. They cannot rely on the presumption if they actually knew the procedure had not been complied with.",cite:"Morris v Kanssen [1946] AC 459; Adadzi, Chapter 7.4"},
+    {type:"tf",q:"A company can validly execute a contract by deed without affixing a common seal if authorised persons sign the deed.",answer:true,explain:"Act 992 permits companies to execute documents either by affixing the company seal or by the signature of authorised persons without a seal.",cite:"Section 153, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"The doctrine of constructive notice was abolished in Ghana by:",opts:["The Companies Act 1963 (Act 179)","The Companies Act 2019 (Act 992)","The Supreme Court in Turquand's case","The Registrar of Companies by administrative directive"],answer:1,explain:"Section 149 of the Companies Act 2019 (Act 992) expressly abolishes the doctrine of constructive notice.",cite:"Section 149, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:6, track:"cases", questions:[
+    {type:"mc",q:"In Royal British Bank v Turquand (1856) 6 E&B 327, the bank lent money on the authority of a bond signed by two directors without the required resolution having been passed. The court held:",opts:["The bank could not recover because it should have checked the resolution","The bank was entitled to assume the resolution had been passed and could enforce the bond","The directors were personally liable","The bond was void"],answer:1,explain:"The court held the bank was entitled to assume that all internal requirements — including passing the required resolution — had been complied with. The bank did not need to check whether the resolution had actually been passed.",cite:"Royal British Bank v Turquand (1856) 6 E&B 327"},
+    {type:"tf",q:"In Morris v Kanssen [1946] AC 459, the House of Lords held that the indoor management rule can be relied upon by an insider — i.e. a director of the company.",answer:false,explain:"The House of Lords held that the indoor management rule cannot be relied upon by persons who are insiders — officers or agents of the company who have the means of knowledge of the internal irregularity.",cite:"Morris v Kanssen [1946] AC 459"},
+    {type:"mc",q:"In Rama Corporation v Proved Tin and General Investments [1952] 2 QB 147, the indoor management rule did NOT apply because:",opts:["The company had no constitution","The plaintiff had actual notice of the lack of authority","The plaintiff was put on inquiry by the unusual nature of the transaction and failed to inquire","The contract was ultra vires the company"],answer:2,explain:"The court held the rule did not protect the plaintiff because the circumstances were so unusual as to put the plaintiff on inquiry. A person put on inquiry who fails to inquire cannot rely on the presumption.",cite:"Rama Corporation v Proved Tin and General Investments [1952] 2 QB 147"},
+    {type:"fill",q:"In Al Saudi Banque v Clark Pixley [1990] 2 WLR 344, the court considered whether _____ could be imposed on auditors for negligent preparation of accounts relied upon by a third party bank.",answer:"liability",explain:"The case addressed the duty of care of auditors and whether they owed a duty to third party creditors who relied on audited accounts.",cite:"Al Saudi Banque v Clark Pixley [1990] 2 WLR 344"},
+    {type:"mc",q:"B Liggett (Liverpool) Ltd v Barclays Bank [1928] 1 KB 48 concerned whether a bank was entitled to assume that cheques presented by a director were authorised. The court held:",opts:["The bank was fully protected by the indoor management rule","The bank was not entitled to rely on the rule where it had not made inquiry about the director's authority","The bank had unlimited protection for all transactions with directors","The indoor management rule does not apply to banks"],answer:1,explain:"The court held the bank was not entitled to rely on the indoor management rule — the rule requires good faith and the bank had not made appropriate inquiry in the circumstances.",cite:"B Liggett (Liverpool) Ltd v Barclays Bank [1928] 1 KB 48"},
+    {type:"tf",q:"The abolition of constructive notice in Act 992 means third parties can rely on section 150 even where they are aware of an irregularity.",answer:false,explain:"Abolition of constructive notice means third parties are not deemed to know of public documents. However, the presumption under section 150 still does not protect a person with ACTUAL notice of an irregularity.",cite:"Section 149 and 150, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which case established that a person appointed as director by an irregular board cannot rely on the indoor management rule to validate their own appointment?",opts:["Freeman & Lockyer v Buckhurst Park Properties","Morris v Kanssen [1946] AC 459","Panorama Developments v Fidelis","Royal British Bank v Turquand"],answer:1,explain:"Morris v Kanssen held that where a person is appointed as director by an irregular board, that person cannot rely on the indoor management rule to validate their own appointment or actions.",cite:"Morris v Kanssen [1946] AC 459"}
+  ]},
+  { ch:7, track:"topics", questions:[
+    {type:"mc",q:"Under section 18(1) of Act 992, what is the default position on the capacity of a company?",opts:["A company's capacity is limited to objects stated in its constitution","A company has full capacity to undertake any business, do any act or enter into any transaction","A company's capacity is determined by the Registrar at incorporation","A company can only act within the capacity of a natural person"],answer:1,explain:"Section 18(1) provides the default position that a company incorporated under Act 992 has full capacity to undertake any business, do any act or enter into any transaction.",cite:"Section 18(1), Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"Under Act 992, if a company's registered constitution states its authorised business, the company is deemed to have restricted its capacity to that stated business.",answer:true,explain:"Section 18(2) provides that where a company opts to state its authorised business in its registered constitution, the company is deemed to have restricted its capacity to that authorised business.",cite:"Section 18(2), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"The ultra vires doctrine — as originally applied in English company law — meant that:",opts:["Directors who exceeded their authority were personally liable","A contract beyond a company's objects was void and unenforceable","A company could not enter into any contract without board approval","Shareholders could ratify any ultra vires act"],answer:1,explain:"The ultra vires doctrine held that where a company acted beyond its objects, the transaction was void ab initio — it could not be ratified even by unanimous shareholder consent.",cite:"Ashbury Railway Carriage v Riche (1875) LR 7 HL 653"},
+    {type:"fill",q:"An act by a director that exceeds director authority but is within the company's capacity is called _____ vires the directors but intra vires the company.",answer:"ultra",explain:"There is a distinction between acts ultra vires the company (void) and acts ultra vires the directors (beyond director authority but within company capacity — may be ratified by shareholders).",cite:"Adadzi, Chapter 8.5"},
+    {type:"mc",q:"Under Act 992, which remedy is available to a shareholder where a company proposes to enter into a transaction beyond any restriction in the constitution?",opts:["Sue the company for damages immediately","Apply to court for an injunction to restrain the proposed act","Report the company to the Registrar","Pass a board resolution to ratify the act"],answer:1,explain:"Section 19(2) of Act 992 preserves the right of a member to apply to the court for an injunction to restrain a proposed act that would be beyond any restriction in the constitution.",cite:"Section 19(2), Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"Under the Companies Act 2019 (Act 992), a third party dealing with a company in good faith is bound to check the company's constitution before entering into a transaction.",answer:false,explain:"Section 149 of Act 992 abolishes constructive notice. A third party is not deemed to have knowledge of the constitution merely because it is filed with the Registrar.",cite:"Sections 149 and 150, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"A director who causes a company to enter into an ultra vires transaction under Act 992 may face which consequence?",opts:["No consequence — Act 992 has fully abolished ultra vires liability","Criminal prosecution by the Registrar","Personal liability to the company for any loss resulting from the ultra vires act","Automatic removal from office"],answer:2,explain:"Section 19(3) preserves the right of the company or a member to sue a director personally for any loss resulting from an act beyond the capacity of the company.",cite:"Section 19(3), Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:7, track:"cases", questions:[
+    {type:"mc",q:"In Ashbury Railway Carriage and Iron Co v Riche (1875) LR 7 HL 653, the company contracted to finance railway construction beyond its stated objects. The House of Lords held:",opts:["The contract was valid as it was incidental to the company's business","The contract was ultra vires and void — the company had no capacity to enter into it","The directors were personally liable for the breach","The shareholders could ratify the contract by special resolution"],answer:1,explain:"The House of Lords held the contract was ultra vires and void. The company had no power to finance railway construction. No ratification could make the contract valid.",cite:"Ashbury Railway Carriage and Iron Co v Riche (1875) LR 7 HL 653"},
+    {type:"tf",q:"In Attorney-General v Great Eastern Railway Co (1880) 5 App Cas 473, the House of Lords extended the ultra vires doctrine to prohibit companies from doing anything reasonably incidental to their authorised business.",answer:false,explain:"The House of Lords held the opposite — acts reasonably incidental to the main objects are intra vires. The ultra vires doctrine only prohibits acts not within or incidental to the company's stated objects.",cite:"Attorney-General v Great Eastern Railway Co (1880) 5 App Cas 473"},
+    {type:"mc",q:"Bell Houses Ltd v City Wall Properties Ltd [1966] 2 QB 656 is significant because:",opts:["It abolished the ultra vires doctrine entirely","It held that an express objects clause enabling the company to carry on any trade approved by the directors was a valid and enforceable main object","It found directors personally liable for ultra vires acts","It established that ratification requires a unanimous shareholder vote"],answer:1,explain:"The Court of Appeal held that a 'subjective objects' clause empowering directors to carry on any other business they considered advantageous was a valid main object, significantly reducing the practical scope of ultra vires.",cite:"Bell Houses Ltd v City Wall Properties Ltd [1966] 2 QB 656"},
+    {type:"fill",q:"In Re Jon Beauforte (London) Ltd [1953] Ch 131, the court held that where a company acts ultra vires and the other party had constructive notice of the objects clause, the ultra vires transaction was _____ and unenforceable.",answer:"void",explain:"The court affirmed that an ultra vires transaction is void. Since the objects clause was in the publicly registered memorandum, the counterparty had constructive notice.",cite:"Re Jon Beauforte (London) Ltd [1953] Ch 131"},
+    {type:"mc",q:"Introductions Ltd v National Provincial Bank [1970] Ch 199 demonstrates that:",opts:["All company borrowing is always intra vires","Borrowing for an ultra vires purpose is itself ultra vires even if borrowing is listed as a power in the memorandum","A bank need not inquire into the purpose of a loan","Directors can authorise any borrowing without shareholder approval"],answer:1,explain:"The Court of Appeal held that borrowing listed as a power was only intra vires if used for an authorised purpose. Borrowing to finance an ultra vires business was itself ultra vires.",cite:"Introductions Ltd v National Provincial Bank [1970] Ch 199"},
+    {type:"tf",q:"Section 19 of Act 992 completely prevents a member from challenging a transaction beyond any restriction in the company's constitution.",answer:false,explain:"Section 19(2) expressly preserves a member's right to apply for an injunction to restrain a proposed act beyond the restrictions in the constitution — though only prospectively.",cite:"Section 19(2), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Which case illustrates that a subsidiary object in a memorandum can be treated as an independent main object, thereby widening company capacity?",opts:["Salomon v Salomon","Ashbury Railway Carriage v Riche","Bell Houses Ltd v City Wall Properties","Morris v Kanssen"],answer:2,explain:"Bell Houses Ltd v City Wall Properties is the leading case establishing that a broadly-drafted subsidiary objects clause can be construed as an independent main object.",cite:"Bell Houses Ltd v City Wall Properties Ltd [1966] 2 QB 656"}
+  ]},
+  { ch:8, track:"topics", questions:[
+    {type:"mc",q:"The corporate veil doctrine means that:",opts:["Directors are personally liable for all company debts","The company and its members are treated as one legal person","The company is a separate legal person — its liabilities are its own and cannot be attributed to its members or directors","A company can never be wound up"],answer:2,explain:"The corporate veil is a figurative concept representing the separation between the company and its members and directors. The company's debts are the company's own.",cite:"Adadzi, Chapter 9.2"},
+    {type:"tf",q:"Under Act 992, piercing the corporate veil is possible only by a court order — the statute does not provide for statutory piercing.",answer:false,explain:"Act 992 contains several provisions that effectively pierce the corporate veil in specific circumstances — e.g. section 218 on fraudulent trading and section 216 on incorrect company names.",cite:"Adadzi, Chapter 9.4.1"},
+    {type:"mc",q:"In which circumstance will a Ghanaian court pierce the corporate veil judicially?",opts:["Whenever the company makes a loss","Where the company was incorporated to evade an existing legal obligation or as a device to perpetrate fraud","Whenever a member leaves the company","Where the company fails to file annual returns"],answer:1,explain:"Courts will pierce the veil judicially where the company is incorporated as a sham or device to evade legal obligations or perpetrate fraud. The veil is not lifted merely because it is just or convenient.",cite:"Gilford Motor Co v Horne [1933]; Jones v Lipman [1962]; Adadzi, Chapter 9.4.2"},
+    {type:"fill",q:"Section 218 of Act 992 provides that where a company carries on business with intent to defraud creditors, the directors knowingly party to this may be made personally liable for the company's _____ without limitation.",answer:"debts",explain:"Section 218 on fraudulent trading provides that officers knowingly party to the fraud are personally liable for all or any of the company's debts without limitation of liability.",cite:"Section 218, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"The 'enemy character' exception to separate legal personality was established in:",opts:["Salomon v Salomon","Gilford Motor Co v Horne","Daimler Co Ltd v Continental Tyre and Rubber Co [1916] 2 AC 307","Adams v Cape Industries"],answer:2,explain:"In Daimler Co Ltd v Continental Tyre, the House of Lords held that the court could look behind the corporate veil to determine the nationality of those controlling the company.",cite:"Daimler Co Ltd v Continental Tyre and Rubber Co [1916] 2 AC 307"},
+    {type:"tf",q:"In Ghana, the mere fact that one person controls and owns all the shares in a company is sufficient ground to pierce the corporate veil.",answer:false,explain:"Following Salomon v Salomon and confirmed in Ghanaian cases including Morkor v Kuma, mere single-person control is not sufficient. There must be fraud, improper purpose, or specific statutory grounds.",cite:"Morkor v Kuma [1998-99] SCGLR 620; Salomon v Salomon [1897]"},
+    {type:"mc",q:"Where a person signs a company document on which the company's name does not correctly appear, their personal liability under Act 992 is:",opts:["No liability — name errors are administrative only","Personal liability to any third party who suffers a loss due to the name not appearing","A fixed fine to the Registrar only","Disqualification from being a director"],answer:1,explain:"Section 216 provides that an officer who signs a document on which the company's name is not correctly stated is personally liable to a holder who suffers loss.",cite:"Section 216, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:8, track:"cases", questions:[
+    {type:"mc",q:"In Gilford Motor Co v Horne [1933] Ch 935, the Court of Appeal pierced the corporate veil because:",opts:["The company was insolvent","The company was formed as a device to evade a personal covenant not to solicit customers of a former employer","The company had traded at a loss","The company's memorandum was fraudulently drafted"],answer:1,explain:"Horne formed a company to evade a restraint of trade covenant. The Court of Appeal pierced the veil — the company was a sham to evade Horne's personal legal obligation.",cite:"Gilford Motor Co v Horne [1933] Ch 935"},
+    {type:"tf",q:"In Jones v Lipman [1962] 1 WLR 832, Russell J refused to pierce the corporate veil because the company was validly incorporated.",answer:false,explain:"Russell J granted specific performance against Lipman and his company. The judge described the company as 'the creature of Lipman's brain, a device and a sham, a mask which he holds before his face.'",cite:"Jones v Lipman [1962] 1 WLR 832"},
+    {type:"mc",q:"In Adams v Cape Industries PLC [1990] Ch 433, the Court of Appeal showed that:",opts:["The veil will always be lifted when justice requires it","A group of companies is not a single economic entity — the veil will only be lifted on strict legal grounds, not merely because it is just or equitable to do so","Parent companies are always liable for subsidiary debts","The veil is lifted whenever a subsidiary is wholly owned by a parent"],answer:1,explain:"The Court of Appeal rejected the 'single economic unit' theory. The corporate veil will be lifted only in specific circumstances recognised by law — not merely because it would be fair to do so.",cite:"Adams v Cape Industries PLC [1990] Ch 433"},
+    {type:"fill",q:"In Morkor v Kuma (East Coast Fisheries Case) [1998-99] SCGLR 620, the Supreme Court of Ghana addressed the corporate veil in the context of alleged _____ trading by the company.",answer:"fraudulent",explain:"The Supreme Court discussed the doctrine of corporate veil and its exceptions in the context of allegations of fraudulent trading, emphasising the strict conditions required to lift the veil.",cite:"Morkor v Kuma (East Coast Fisheries Case) [1998-99] SCGLR 620"},
+    {type:"mc",q:"In Owusu v R.N. Thorne Ltd [1966] GLR 90, the court held that an officer-shareholder who negotiated and signed a contract on the company's behalf in the normal course of their duties:",opts:["Is personally liable on that contract","Does not create personal liability by signing on behalf of the company in the normal course of duties","Is jointly liable with the company","Must personally guarantee the company's performance"],answer:1,explain:"The case affirmed that signing on behalf of a company in the normal course of duties does not create personal liability. The separation between officer and company is maintained.",cite:"Owusu v R.N. Thorne Ltd [1966] GLR 90"},
+    {type:"tf",q:"In Woolfson v Strathclyde Regional Council [1978] SC (HL) 90, the House of Lords held that the corporate veil could be pierced whenever there is a group of interrelated companies.",answer:false,explain:"The House of Lords held that the corporate veil may only be pierced where 'special circumstances exist indicating that it is a mere façade concealing the true facts.' Mere interrelation is insufficient.",cite:"Woolfson v Strathclyde Regional Council [1978] SC (HL) 90"},
+    {type:"mc",q:"In Daimler Co Ltd v Continental Tyre and Rubber Co [1916] 2 AC 307, the House of Lords pierced the corporate veil to:",opts:["Find directors personally liable for company debts","Determine the enemy character of a company controlled by German shareholders during World War I","Lift the veil to protect creditors of an insolvent company","Enforce a contract against shareholders personally"],answer:1,explain:"During World War I, the House of Lords looked behind the corporate veil to determine that Continental Tyre was an 'enemy company' — controlled by German nationals. Trading with an enemy company was prohibited.",cite:"Daimler Co Ltd v Continental Tyre and Rubber Co [1916] 2 AC 307"}
+  ]},
+  { ch:9, track:"topics", questions:[
+    {type:"mc",q:"Corporate governance is best described as:",opts:["The day-to-day management of company operations","The system of rules, practices and processes by which a company is directed and controlled","The financial accounting system of a company","The employment policies of a company"],answer:1,explain:"Corporate governance is the system of rules, practices and processes by which a company is directed and controlled. It balances the interests of a company's many stakeholders.",cite:"Richard Smerdon, A Practical Guide to Corporate Governance (4th edn); Adadzi, Chapter 10.2"},
+    {type:"tf",q:"Under Act 992, a company's general meeting has the power to give binding directions to directors on how to manage the company's day-to-day business.",answer:false,explain:"Under Act 992, management of the company's business is vested in the board of directors, not the general meeting. The general meeting cannot give binding directions to the board on management matters.",cite:"Adadzi, Chapter 10.5; Automatic Self Cleansing Filter Syndicate v Cuninghame [1906]"},
+    {type:"mc",q:"The rule of attribution in company law determines:",opts:["Which shareholders must approve major transactions","How the acts and intentions of officers and agents are attributed to the company as a legal person","The percentage required for a quorum at board meetings","How dividends are calculated and distributed"],answer:1,explain:"Rules of attribution determine how the acts, knowledge or intentions of natural persons are treated as the acts, knowledge or intentions of the company as an artificial legal person.",cite:"Meridian Global Funds Management Asia v Securities Commission [1995] 2 AC 500; Adadzi, Chapter 10.5"},
+    {type:"fill",q:"A major transaction under Act 992 involving assets exceeding _____ percent of the company's total assets requires shareholder approval.",answer:"75",explain:"Section 108 defines a major transaction as one involving acquisition or disposal of assets worth more than 75% of total assets, or creating a liability exceeding 75% of shareholders' funds.",cite:"Section 108, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"In Freeman & Lockyer v Buckhurst Park Properties [1964] 2 QB 480, the Court of Appeal recognised that a company can be bound by an agent's acts through:",opts:["Express actual authority only","Implied or ostensible authority — where the company holds out the agent as having authority and the third party relies on it","Constructive authority","Ratification only"],answer:1,explain:"Diplock LJ held that a company is bound by the acts of an agent acting within ostensible authority — where the company by words or conduct represents to a third party that the agent has authority.",cite:"Freeman & Lockyer v Buckhurst Park Properties [1964] 2 QB 480"},
+    {type:"tf",q:"Under Act 992, the board of directors may delegate management functions to a managing director or to committees of the board.",answer:true,explain:"Section 185 of Act 992 expressly permits the board to delegate to a managing director, to an executive committee or to other committees.",cite:"Section 185, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Meridian Global Funds Management Asia v Securities Commission [1995] 2 AC 500 established that:",opts:["A company can never have criminal liability","Rules of attribution are determined by the particular statute in question and the purpose it seeks to achieve","All acts of directors are automatically attributed to the company","Attribution requires the act of the board as a whole"],answer:1,explain:"Lord Hoffmann held that rules of attribution are determined by the particular statute or rule and the purpose it seeks to achieve. There is no single universal rule.",cite:"Meridian Global Funds Management Asia v Securities Commission [1995] 2 AC 500"}
+  ]},
+  { ch:9, track:"cases", questions:[
+    {type:"mc",q:"In Freeman & Lockyer v Buckhurst Park Properties [1964] 2 QB 480, the managing director acted without formal appointment. The company was held bound. The basis was:",opts:["The board had ratified all his acts","The company had actual knowledge of his acts and acquiesced — giving him ostensible authority","The articles expressly authorised him","He had implied authority as a shadow director"],answer:1,explain:"The Court of Appeal held the company was estopped from denying the managing director's authority. The board knew he was acting as managing director and allowed it — this amounted to a representation on which the third party relied.",cite:"Freeman & Lockyer v Buckhurst Park Properties [1964] 2 QB 480"},
+    {type:"tf",q:"In Hely-Hutchinson v Brayhead Ltd [1968] 1 QB 549, Lord Denning held that even if a director has no actual authority, the company can be bound through the director's ostensible or apparent authority.",answer:true,explain:"Lord Denning confirmed that although the chairman/CEO had no formal actual authority, the company had by its conduct clothed him with apparent authority.",cite:"Hely-Hutchinson v Brayhead Ltd [1968] 1 QB 549"},
+    {type:"mc",q:"In Automatic Self Cleansing Filter Syndicate Co Ltd v Cuninghame [1906] 2 Ch 34 CA, the court held that:",opts:["Shareholders can instruct directors by ordinary resolution on all management matters","Directors given management powers by the articles are not bound to carry out a resolution of the shareholders on a management matter unless the articles so provide","The board must always follow shareholder majority decisions","A managing director can be appointed only by shareholders in general meeting"],answer:1,explain:"The Court of Appeal held that where the articles vest management powers in the board, the directors are not obliged to follow a simple majority resolution of shareholders on a management matter.",cite:"Automatic Self Cleansing Filter Syndicate Co Ltd v Cuninghame [1906] 2 Ch 34 CA"},
+    {type:"fill",q:"In Meridian Global Funds Management Asia v Securities Commission [1995], Lord Hoffmann identified that rules of _____ are used to determine whose acts and knowledge are to be treated as the acts and knowledge of the company.",answer:"attribution",explain:"Lord Hoffmann's speech set out a framework of attribution rules: primary attribution, general attribution (agency), and special attribution (determined by the purpose of specific statutory provisions).",cite:"Meridian Global Funds Management Asia v Securities Commission [1995] 2 AC 500"},
+    {type:"mc",q:"Which case established that a company secretary has ostensible authority to enter into contracts connected with the administrative side of the company's business?",opts:["Barnett Hoares & Co v South London Tramways Co","Panorama Developments (Guildford) Ltd v Fidelis Furnishing Fabrics Ltd [1971] 2 QB 711","Re Maidstone Buildings Provisions Ltd","Morris v Kanssen"],answer:1,explain:"In Panorama Developments v Fidelis, Lord Denning MR held that the company secretary has ostensible authority to make contracts relating to the administrative side of the company's business.",cite:"Panorama Developments (Guildford) Ltd v Fidelis Furnishing Fabrics Ltd [1971] 2 QB 711"},
+    {type:"tf",q:"In Hely-Hutchinson v Brayhead Ltd, the Court held that actual authority may be implied from conduct as well as from express authorisation.",answer:true,explain:"Lord Denning confirmed that actual authority may be express or implied — from the conduct of the parties and the circumstances of the case.",cite:"Hely-Hutchinson v Brayhead Ltd [1968] 1 QB 549"},
+    {type:"mc",q:"Which provision of Act 992 reflects the principle that a person dealing with a company is entitled to assume the board has complied with its own internal procedures?",opts:["Section 18 — capacity of a company","Section 150 — presumption of regularity","Section 218 — fraudulent trading","Section 108 — major transactions"],answer:1,explain:"Section 150 of Act 992 codifies the presumption of regularity — a person dealing with a company is entitled to assume that internal procedures have been duly complied with.",cite:"Section 150, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:10, track:"topics", questions:[
+    {type:"mc",q:"Under Act 992, how does a person become a member of a company?",opts:["By being employed by the company","By being named as a subscriber in the application for incorporation OR by subsequently agreeing to become a member and being entered in the register of members","By owning shares in the company without being registered","By being appointed as a director"],answer:1,explain:"Section 33 provides that membership is acquired by being a subscriber to the application for incorporation, or by agreeing to become a member and having one's name entered in the register of members.",cite:"Section 33, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"A company is required to maintain a register of members under Act 992.",answer:true,explain:"Section 103 requires every company to maintain a register of members containing names, addresses, shares held, amount paid up, and dates of entry and cessation.",cite:"Section 103, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Shares in a company are legally described as:",opts:["Tangible property that can be physically possessed","A bundle of rights and obligations defined by the constitution and Companies Act — a chose in action","A loan to the company","Physical assets of the company"],answer:1,explain:"Shares are intangible personal property — a chose in action representing a bundle of contractual rights and obligations against the company.",cite:"Borland's Trustee v Steel Brothers & Co Ltd [1901]; Adadzi, Chapter 11.2"},
+    {type:"fill",q:"The right of a member to transfer shares in a private company is usually restricted by the company's _____.",answer:"constitution",explain:"In a private company, the right to transfer shares is typically restricted by the constitution — commonly by giving existing members a right of pre-emption or requiring board approval.",cite:"Adadzi, Chapter 11.2.3; Section 7, Act 992"},
+    {type:"mc",q:"The transmission of shares differs from transfer in that transmission occurs:",opts:["By sale of shares on the stock exchange","By operation of law — e.g. on death or bankruptcy of a member","By a voluntary agreement between the transferor and transferee","By a board resolution transferring shares between members"],answer:1,explain:"Transmission of shares occurs by operation of law — automatically upon events such as the death or bankruptcy of a member, without any voluntary act of transfer.",cite:"Adadzi, Chapter 11.2.4; Section 96, Act 992"},
+    {type:"tf",q:"A member of a company limited by shares is personally liable for the company's debts beyond the amount unpaid on their shares.",answer:false,explain:"In a company limited by shares, members' liability is limited to the amount unpaid on their shares. Once shares are fully paid up, the member has no further liability.",cite:"Section 10(1)(a), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Under Act 992, a member has the right to inspect the register of members:",opts:["Only at the registered office during working hours","At any time and place of their choice","At the Registrar of Companies' office only","Only if they own more than 5% of the company's shares"],answer:0,explain:"Section 103(4) provides that the register of members must be kept at the registered office and is available for inspection by any member without charge.",cite:"Section 103(4), Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:10, track:"cases", questions:[
+    {type:"mc",q:"In Adehyeman Gardens Ltd v Assibey [2003-2004] 2 SCGLR 1016, the Supreme Court confirmed that a subscriber to a company's regulations becomes a member:",opts:["Only when the company formally allots shares to them","Upon the incorporation of the company — registration ipso facto makes subscribers members","Only after paying the full subscription price","Only after the Registrar enters their name in the register"],answer:1,explain:"The Supreme Court confirmed that subscription to the regulations and being named in the application makes a person a member immediately upon incorporation.",cite:"Adehyeman Gardens Ltd v Assibey [2003-2004] 2 SCGLR 1016"},
+    {type:"tf",q:"In Greenhalgh v Arderne Cinemas Ltd [1946] 1 All ER 512, the Court of Appeal upheld a share subdivision that had the effect of defeating a minority shareholder's blocking power.",answer:true,explain:"The Court of Appeal held that a subdivision of shares was valid even though it had the effect of multiplying the majority's voting power and defeating the minority's blocking rights.",cite:"Greenhalgh v Arderne Cinemas Ltd [1946] 1 All ER 512"},
+    {type:"mc",q:"In Re Smith & Fawcett Ltd [1942] Ch 304, the Court of Appeal confirmed that directors' power to refuse to register a share transfer:",opts:["Must be exercised according to fixed criteria in the articles","Must be exercised bona fide in the interests of the company — they need not give reasons","Can only be exercised to protect existing majority shareholders","Must be approved by a special resolution of shareholders"],answer:1,explain:"Lord Greene MR held that where articles give directors absolute discretion to refuse to register a share transfer, they need only exercise that discretion bona fide in the interests of the company. They are not required to give reasons.",cite:"Re Smith & Fawcett Ltd [1942] Ch 304"},
+    {type:"fill",q:"In Borland's Trustee v Steel Brothers [1901] 1 Ch 279, Farwell J defined a share as a bundle of rights and obligations defined by the _____ and the Companies Act.",answer:"articles",explain:"Farwell J's classic definition describes a share as an interest measured by a sum of money consisting of a series of mutual covenants entered into by all shareholders in accordance with the Companies Act.",cite:"Borland's Trustee v Steel Brothers & Co Ltd [1901] 1 Ch 279"},
+    {type:"mc",q:"In Armagas Ltd v Mundogas SA [1986] AC 717, the House of Lords clarified that apparent authority:",opts:["A company is always bound by the acts of its directors","Cannot be created by the agent representing their own authority — the representation must come from the principal","All acts of senior officers bind the company","Ostensible authority only arises from the company's articles"],answer:1,explain:"The House of Lords held that apparent authority must be derived from a representation by the principal (the company), not merely from the agent's own assertion of authority.",cite:"Armagas Ltd v Mundogas SA [1986] AC 717"},
+    {type:"tf",q:"A person registered as a member in the register of members is conclusively a member — no evidence can be admitted to challenge the register.",answer:false,explain:"While the register is prima facie evidence of membership, it is not conclusive. Courts can order rectification under Act 992 where the register is incorrect.",cite:"Section 104, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"What event constitutes 'transmission' of shares as distinct from 'transfer'?",opts:["A contractual sale between a willing buyer and seller","The death of a shareholder — shares pass automatically to their personal representative","A gift of shares between family members","The company buying back shares from a shareholder"],answer:1,explain:"Transmission occurs by operation of law — shares vest automatically in the personal representative of a deceased member or the trustee in bankruptcy of a bankrupt member.",cite:"Section 96, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:11, track:"topics", questions:[
+    {type:"mc",q:"Under Act 992, how soon after incorporation must a newly formed company hold its first Annual General Meeting?",opts:["Within six months","Within twelve months","Within eighteen months","Within three months"],answer:2,explain:"Act 992 provides that a newly incorporated company has eighteen months from the date of incorporation to hold its first Annual General Meeting.",cite:"Section 156, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"A private company incorporated under Act 992 may, if all shareholders consent, dispense with holding an Annual General Meeting.",answer:true,explain:"Act 992 allows a private company to pass a written resolution agreed to by all members entitled to vote to dispense with the AGM for a particular year.",cite:"Section 156(3), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"What is the minimum notice required for an Annual General Meeting under Act 992?",opts:["7 days","14 days","21 days","28 days"],answer:2,explain:"Section 165 requires at least 21 days' notice for an Annual General Meeting.",cite:"Section 165, Companies Act 2019 (Act 992)"},
+    {type:"fill",q:"The principle that unanimous informal consent of all shareholders binds the company without a formal meeting is called the Duomatic or _____ principle.",answer:"Unanimity",explain:"The Duomatic or Unanimity principle (confirmed in Re Duomatic Ltd and statutorily restated in Act 992) provides that unanimous informal consent of all shareholders who would be entitled to vote can be as effective as a formal resolution.",cite:"Re Duomatic Ltd [1969] 2 Ch 365; Section 169, Act 992"},
+    {type:"mc",q:"An Extraordinary General Meeting under Act 992 may be convened by:",opts:["The board of directors only","Shareholders holding not less than one-tenth of the paid-up capital OR the board of directors","Any single shareholder regardless of shareholding","The Registrar of Companies only"],answer:1,explain:"Section 158 provides that an EGM may be convened by the directors. Members holding not less than one-tenth of the paid-up capital may also require the directors to convene an EGM.",cite:"Section 158, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"Under Act 992, a proxy has the right to speak at a general meeting as well as to vote.",answer:true,explain:"Section 175 provides that a proxy has the same rights as the member who appointed them, including the right to speak and vote.",cite:"Section 175, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"Under Act 992, a special resolution requires what percentage of votes cast?",opts:["50% plus one vote","Two-thirds of votes cast","At least 75% of votes cast","Unanimous consent of all members"],answer:2,explain:"Section 155 defines a special resolution as one passed by at least 75% of votes cast by members entitled to vote.",cite:"Section 155, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:11, track:"cases", questions:[
+    {type:"mc",q:"In Re El Sombrero Ltd [1958] Ch 900, the court ordered the convening of a general meeting because:",opts:["The company had failed to hold an AGM","One director blocked all attempts to hold a meeting that the other shareholder needed to remove him","The company had become insolvent","The articles required court approval for all general meetings"],answer:1,explain:"The court used its power to order a meeting to be convened where the minority shareholder was unable to call one due to the conduct of the majority/sole director.",cite:"Re El Sombrero Ltd [1958] Ch 900"},
+    {type:"tf",q:"In Peel v London & North Western Railway Co [1907] 1 Ch 5, the court held that general notice of matters to be considered is sufficient, but special notice is required for resolutions to remove directors.",answer:true,explain:"The court confirmed that whilst general notice is normally sufficient, certain specific matters — notably resolutions to remove directors — require special notice to allow the affected director to respond.",cite:"Peel v London & North Western Railway Co [1907] 1 Ch 5"},
+    {type:"mc",q:"In Re Duomatic Ltd [1969] 2 Ch 365, Buckley J held that:",opts:["Shareholders cannot informally approve transactions — formal meetings are always required","Where all shareholders who have a right to attend and vote assent to a matter informally, that assent is as binding as a formal resolution","The Duomatic principle only applies to private companies","Only written unanimous consent is acceptable"],answer:1,explain:"Buckley J stated: where all shareholders who have a right to attend and vote at a general meeting assent to some matter informally, that assent is as binding as a resolution in general meeting would be.",cite:"Re Duomatic Ltd [1969] 2 Ch 365"},
+    {type:"fill",q:"In Eshun v Poku [1989-90] 2 GLR 572, the court held that failure to submit financial statements before an AGM does not _____ the meeting as an annual general meeting.",answer:"invalidate",explain:"The Ghanaian court held that failure to comply with the requirement to submit financial statements is a breach of duty but does not automatically invalidate the meeting as an AGM.",cite:"Eshun v Poku [1989-90] 2 GLR 572"},
+    {type:"mc",q:"In Burland v Earle [1902] AC 83, the Privy Council held that in relation to voting at a general meeting:",opts:["Shareholders must vote in the interests of the company as a whole","A shareholder is entitled to vote in their own personal interests even on a resolution in which they have a personal interest","Shareholders must abstain if they have a personal interest","Proxy votes count as two votes"],answer:1,explain:"The Privy Council confirmed that a shareholder is entitled as a matter of general law to vote in their own interests — unlike a director who must act in the company's interests.",cite:"Burland v Earle [1902] AC 83"},
+    {type:"tf",q:"In Cane v Jones [1980] 1 WLR 1451, the court held that the Duomatic principle could not apply because the unanimous agreement was not made at a formal meeting.",answer:false,explain:"Michael Wheeler QC held that the Duomatic principle applied even though there was no formal meeting — the unanimous written agreement of all shareholders was binding.",cite:"Cane v Jones [1980] 1 WLR 1451"},
+    {type:"mc",q:"Which Ghanaian case addresses the three conditions that must be satisfied for a meeting to be validly constituted as an Annual General Meeting?",opts:["Morkor v Kuma","Adehyeman Gardens v Assibey","Eshun v Poku [1989-90] 2 GLR 572","Akoto v Akoto"],answer:2,explain:"In Eshun v Poku, the Ghanaian court considered the requirements for a valid AGM — including that it be the only AGM for that year, be designated as an AGM in the notice, and be held at least 21 days after dispatch of financial statements.",cite:"Eshun v Poku [1989-90] 2 GLR 572"}
+  ]},
+  { ch:12, track:"topics", questions:[
+    {type:"mc",q:"Under Act 992, what is the minimum number of directors required for a private company?",opts:["One director","Two directors","Three directors","Four directors"],answer:0,explain:"Section 186(1) provides that a private company must have at least one director. At least one director must be ordinarily resident in Ghana.",cite:"Section 186, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"A de facto director — one who acts as a director without formal appointment — owes the same duties to the company as a formally appointed director.",answer:true,explain:"A de facto director is subject to all the duties and liabilities of a duly appointed director under Act 992. This prevents persons from avoiding director duties by avoiding formal appointment.",cite:"Adadzi, Chapter 13.6; Section 193, Act 992"},
+    {type:"mc",q:"The duty of directors under Act 992 to act in the best interests of the company means they must act in the interests of:",opts:["The majority shareholders only","The current shareholders only","The company as a whole — including shareholders, employees and creditors where relevant","Only the creditors of the company"],answer:2,explain:"Section 191(1) provides that a director must act in the best interests of the company — which includes the shareholders collectively, employees, and in certain circumstances creditors.",cite:"Section 191(1), Companies Act 2019 (Act 992)"},
+    {type:"fill",q:"A director who makes a secret profit by using corporate opportunities must account for that profit to the company. This is an application of the duty to avoid _____ of duty and interest.",answer:"conflict",explain:"The conflict of interest duty requires directors to avoid situations where personal interests conflict with the company's interests. A breach requires the director to account for any profit made.",cite:"Section 194, Act 992; Regal (Hastings) Ltd v Gulliver [1967]"},
+    {type:"mc",q:"Under Act 992, a director may be removed by:",opts:["A board resolution only","An ordinary resolution of members — a simple majority — passed at a general meeting of which special notice has been given","A special resolution of members only","Only by the person or body that appointed them"],answer:1,explain:"Section 203 provides that a member may, by ordinary resolution at a general meeting, remove a director. Special notice of 28 days must be given to the company.",cite:"Section 203, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"Under Act 992, a director's duty of care requires them to exercise the care and diligence of a reasonable person.",answer:true,explain:"Section 191(4) provides that a director must exercise the care and diligence that a reasonable person in their position would exercise.",cite:"Section 191(4), Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"A director who has an interest in a contract proposed to be entered into by the company must under Act 992:",opts:["Vote against the contract","Declare the nature of their interest to the board before the contract is entered into","Resign from the board immediately","Pay the interest to the company"],answer:1,explain:"Section 194 requires a director who has a material interest to disclose the nature of their interest to the board before the contract is entered into. Failure to disclose may render the contract voidable.",cite:"Section 194, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:12, track:"cases", questions:[
+    {type:"mc",q:"In Regal (Hastings) Ltd v Gulliver [1967] 2 AC 134, the House of Lords held that directors who acquired shares in a subsidiary using their position as directors were:",opts:["Entitled to keep the profits as they had acted honestly","Liable to account for their profits to the company even though they had not acted fraudulently and the company had not suffered loss","Not liable as the company had ratified their actions","Personally liable only if the company could prove actual loss"],answer:1,explain:"Lord Russell stated the rule of equity: a person in a fiduciary position who makes a profit using that position must account, regardless of fraud, bad faith or company loss.",cite:"Regal (Hastings) Ltd v Gulliver [1967] 2 AC 134"},
+    {type:"tf",q:"In Re City Equitable Fire Insurance Co [1925] Ch 407, Romer J held that a director must devote continuous attention to the company's affairs and attend every board meeting.",answer:false,explain:"Romer J stated the opposite — a director is not required to give continuous attention to the company's affairs, nor bound to attend all board meetings.",cite:"Re City Equitable Fire Insurance Co [1925] Ch 407"},
+    {type:"mc",q:"In Boardman v Phipps [1967] 2 AC 46, the House of Lords held that a solicitor to trustees who used information obtained in that capacity to make a personal profit:",opts:["Was entitled to keep the profit as he had acted honestly and skilfully","Was liable to account for the profit despite acting honestly and the trust benefiting from his actions","Was only liable if he had committed fraud","Was not liable as he had not used trust property"],answer:1,explain:"The House of Lords held (by a bare majority) that Boardman and Phipps held their profits on constructive trust — they had used confidential information obtained in their fiduciary capacity to make personal profits.",cite:"Boardman v Phipps [1967] 2 AC 46"},
+    {type:"fill",q:"In IDC v Cooley [1972] 1 WLR 443, the managing director resigned to take up a contract personally that had been offered to the company. He was held liable to account because he had used his _____ position to acquire a personal opportunity.",answer:"fiduciary",explain:"Roskill J held that Cooley had received information about the contract in his capacity as MD. He resigned to take the opportunity personally — breaching his fiduciary duty not to appropriate corporate opportunities.",cite:"IDC v Cooley [1972] 1 WLR 443"},
+    {type:"mc",q:"In Aberdeen Railway Co v Blaikie Brothers (1854) 1 Macq HL 461, the House of Lords held that a contract between a company and a firm in which the chairman was a partner was:",opts:["Valid because the company had received good value","Voidable at the company's option because the chairman could not represent both sides of the bargain","Void ab initio for fraud","Valid if ratified by shareholders"],answer:1,explain:"Lord Cranworth LC established the foundational principle: a director cannot be on both sides of a transaction. Such contracts are voidable at the company's option.",cite:"Aberdeen Railway Co v Blaikie Brothers (1854) 1 Macq HL 461"},
+    {type:"tf",q:"In Percival v Wright [1902] 2 Ch 421, the court held that directors owe a fiduciary duty directly to individual shareholders when buying shares from them.",answer:false,explain:"The court held that directors do not owe a fiduciary duty to individual shareholders in transactions for the purchase of their shares. Directors are fiduciaries to the company — not to individual members.",cite:"Percival v Wright [1902] 2 Ch 421"},
+    {type:"mc",q:"Which case established that the standard of care expected of a director is that of a reasonably diligent person with the general knowledge, skill and experience of that director?",opts:["Re City Equitable Fire Insurance Co [1925]","Re D'Jan of London Ltd [1993] BCC 646","Regal Hastings v Gulliver","Aberdeen Railway v Blaikie Brothers"],answer:1,explain:"Re D'Jan of London Ltd held the standard of care is that of a reasonably diligent person with: (a) the general knowledge, skill and experience expected of a person carrying out their functions; AND (b) the actual knowledge, skill and experience of that director.",cite:"Re D'Jan of London Ltd [1993] BCC 646"}
+  ]},
+  { ch:13, track:"topics", questions:[
+    {type:"mc",q:"Under Act 992, every public company must have a company secretary. What is the position for private companies?",opts:["Private companies are exempt from the requirement","Private companies must also have a company secretary under Act 992","Only private companies with more than 10 members need a secretary","A private company must appoint a secretary within five years of incorporation"],answer:1,explain:"Section 212 of Act 992 requires every company — both public and private — to have a company secretary.",cite:"Section 212, Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"Under Act 992, the company secretary is considered a mere servant with no authority to bind the company in contracts.",answer:false,explain:"Following Panorama Developments v Fidelis Furnishing Fabrics [1971], the company secretary has ostensible authority to enter into contracts on the administrative side of the company's business.",cite:"Section 212-215, Act 992; Panorama Developments v Fidelis [1971] 2 QB 711"},
+    {type:"mc",q:"Which of the following is a statutory duty of the company secretary under Act 992?",opts:["Setting the company's dividend policy","Attending and keeping minutes of all general meetings and board meetings","Approving all contracts entered into by the company","Preparing the annual financial statements"],answer:1,explain:"Section 214 includes among the company secretary's duties: attending meetings, preparing and maintaining minutes, and ensuring copies of resolutions are properly filed.",cite:"Section 214, Companies Act 2019 (Act 992)"},
+    {type:"fill",q:"In Barnett, Hoares & Co v South London Tramways Co (1887), Lord Esher described the company secretary as a 'mere _____', meaning someone who does what they are told with no authority to represent the company.",answer:"servant",explain:"Lord Esher MR stated: 'A secretary is a mere servant; his position is that he is to do what he is told, and no person can assume that he has any authority to represent anything at all.' This old view has been superseded by Panorama Developments and Act 992.",cite:"Barnett Hoares & Co v South London Tramways Co (1887) 18 QBD 815"},
+    {type:"mc",q:"Under Act 992, a company secretary of a public company must have which qualification?",opts:["A degree in any subject","A professional qualification such as ICSA or an equivalent","At least ten years' experience in company administration","A legal qualification only"],answer:1,explain:"Section 212(3) requires the secretary of a public company to hold a prescribed professional qualification such as membership of the ICSA or an equivalent body.",cite:"Section 212(3), Companies Act 2019 (Act 992)"},
+    {type:"tf",q:"The company secretary may convene an extraordinary general meeting on their own authority without a directive from the directors.",answer:false,explain:"The company secretary has no power to convene an EGM on their own authority. In Luguterah v Northern Engineering Co Ltd [1979], the court confirmed that a secretary who convened a meeting without director authorisation acted beyond their powers.",cite:"Luguterah v Northern Engineering Co Ltd [1979] GLR 477"},
+    {type:"mc",q:"Which of the following correctly describes the dual role of the company secretary under Act 992?",opts:["The company secretary acts only as the board's administrative officer","The company secretary is both an officer of the company with statutory duties AND the board's principal administrative officer — ensuring governance compliance","The company secretary's role is equivalent to a non-executive director","The company secretary is responsible for the company's audit function"],answer:1,explain:"Under Act 992, the company secretary is a key officer with extensive statutory duties (filing, minutes, governance compliance) and also serves as the board's principal administrative officer.",cite:"Section 212-215, Companies Act 2019 (Act 992)"}
+  ]},
+  { ch:13, track:"cases", questions:[
+    {type:"mc",q:"In Panorama Developments (Guildford) Ltd v Fidelis Furnishing Fabrics Ltd [1971] 2 QB 711, Lord Denning MR held that the company secretary:",opts:["Has no authority to bind the company in contracts","Has ostensible authority to make contracts connected with the administrative side of the company's business","Has the same authority as a managing director","Can only bind the company if authorised by a board resolution"],answer:1,explain:"Lord Denning held that a company secretary is a senior officer with ostensible authority to enter into contracts related to the administrative side of the company. This reversed the nineteenth century 'mere servant' position.",cite:"Panorama Developments (Guildford) Ltd v Fidelis Furnishing Fabrics Ltd [1971] 2 QB 711"},
+    {type:"tf",q:"In Re Maidstone Buildings Provisions Ltd [1971] 1 WLR 1085, the court held that a company secretary who continued trading while knowing the company was insolvent could be personally liable for fraudulent trading.",answer:true,explain:"The court held that the company secretary, by participating in management and continuing to trade while knowingly insolvent, could be found liable for fraudulent trading.",cite:"Re Maidstone Buildings Provisions Ltd [1971] 1 WLR 1085"},
+    {type:"mc",q:"In Barnett Hoares & Co v South London Tramways Co (1887) 18 QBD 815, the Court of Appeal held that the company secretary:",opts:["Has implied authority to borrow money on behalf of the company","Has ostensible authority to enter into all commercial contracts","Is a mere servant with no authority to make representations on behalf of the company","Has the same authority as a director"],answer:2,explain:"Lord Esher MR held in the nineteenth-century view that the secretary 'is a mere servant' with no authority to make representations or contracts. This position has been substantially reversed by Panorama Developments and modern legislation.",cite:"Barnett Hoares & Co v South London Tramways Co (1887) 18 QBD 815"},
+    {type:"fill",q:"In Luguterah v Northern Engineering Co Ltd [1979] GLR 477, Taylor J held that a company secretary who convened an extraordinary general meeting without director authorisation acted _____ their powers.",answer:"beyond",explain:"Taylor J confirmed that a company secretary has no power to convene an EGM on their own authority — they must act on the direction of the directors.",cite:"Luguterah v Northern Engineering Co Ltd [1979] GLR 477"},
+    {type:"mc",q:"What is the significance of Panorama Developments v Fidelis for Ghanaian company law?",opts:["It has no significance as Ghana follows Act 992 exclusively","It established principles of company secretary authority that Adadzi argues should apply in Ghana given Act 992's expanded duties for company secretaries","It established that company secretaries are always personally liable for company debts","It abolished the role of company secretary in private companies"],answer:1,explain:"Adadzi argues that given the onerous duties imposed by Act 992, the Panorama view — that company secretaries are senior officers with significant authority — should be adopted by Ghanaian courts.",cite:"Panorama Developments v Fidelis [1971]; Adadzi, Chapter 14.2"},
+    {type:"tf",q:"Under Act 992, the company secretary is required to sign the annual return of the company together with a director.",answer:true,explain:"Act 992 requires the annual return to be signed by both a director and the company secretary, reflecting the company secretary's role in ensuring regulatory compliance.",cite:"Section 126, Companies Act 2019 (Act 992)"},
+    {type:"mc",q:"In George Whitechurch Ltd v Cavanagh [1902] AC 117, the House of Lords established that:",opts:["Company secretaries have unlimited authority to issue share certificates","A company secretary who issues a fraudulent share certificate can bind the company if acting within usual authority","A company secretary has no authority to issue share certificates without express board authorisation","Share certificates signed only by the company secretary are void"],answer:1,explain:"The House of Lords held that a company secretary acting within their usual or ostensible authority can bind the company even where the secretary acts fraudulently, if the third party is innocent.",cite:"George Whitechurch Ltd v Cavanagh [1902] AC 117"}
+  ]}
+];
+
+const CHAPTER_META = [
+  {num:"1.0",title:"Introduction to Company Law",sub:"Meaning, scope, history & sources of company law in Ghana"},
+  {num:"2.0",title:"Unincorporated & Incorporated Entities",sub:"Sole proprietorships, partnerships, corporations and other entities"},
+  {num:"3.0",title:"Companies",sub:"Formation, name, certificate of incorporation, types and characteristics"},
+  {num:"4.0",title:"Constitution of a Company",sub:"Registered constitution, content, effects, amendment and shareholders agreements"},
+  {num:"5.0",title:"Promoters",sub:"Acts, statutory duties, remedies for breach and remuneration"},
+  {num:"6.0",title:"Pre-Incorporation Contracts",sub:"Common law, Ghanaian law, ratification and liability"},
+  {num:"7.0",title:"Presumption of Regularity",sub:"Indoor management rule, common law, Act 992 and exceptions"},
+  {num:"8.0",title:"Capacity of a Company & Ultra Vires",sub:"Legal capacity, the ultra vires doctrine and its consequences under Act 992"},
+  {num:"9.0",title:"Doctrine of Corporate Veil",sub:"Separate legal personality, piercing the veil — statutory and judicial"},
+  {num:"10.0",title:"Introduction to Corporate Governance",sub:"Governance principles, structure, powers, delegation and authority"},
+  {num:"11.0",title:"Members of a Company",sub:"Acquiring membership, rights, liabilities, duties and cessation"},
+  {num:"12.0",title:"General Meetings",sub:"AGM, EGM, notice, quorum, proxies, resolutions and voting"},
+  {num:"13.0",title:"Directors of Companies",sub:"Definition, appointment, qualifications, duties, liabilities and removal"},
+  {num:"14.0",title:"Company Secretary",sub:"Definition, status, appointment, duties, liabilities and removal"}
+];
+
+let state={completedQuizzes:{},quizScores:{},totalXP:0,currentChapter:null,currentTrack:null,currentQ:0,currentScore:0,questions:[],answered:false,streak:0,reviewLog:[]};
+function save(){try{localStorage.setItem('lq2',JSON.stringify({c:state.completedQuizzes,s:state.quizScores,x:state.totalXP}));}catch(e){}}
+function load(){try{const d=localStorage.getItem('lq2');if(d){const p=JSON.parse(d);state.completedQuizzes=p.c||{};state.quizScores=p.s||{};state.totalXP=p.x||0;}}catch(e){}}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function showMap(){renderMap();showScreen('map');}
+function calcStars(s,t){if(s===null||s===undefined)return 0;if(s===t)return 3;if(s>=Math.ceil(t*.7))return 2;if(s>0)return 1;return 0;}
+function isStarted(i){return !!(state.completedQuizzes[`${i}-topics`]||state.completedQuizzes[`${i}-cases`]);}
+
+function renderMap(){
+  const list=document.getElementById('chaptersList');
+  list.innerHTML='';
+  const maxXP=CHAPTER_META.length*2*70;
+  document.getElementById('totalXP').textContent=state.totalXP;
+  document.getElementById('globalXpBar').style.width=Math.min(100,(state.totalXP/maxXP)*100)+'%';
+  document.getElementById('globalXpLabel').textContent=`${state.totalXP} / ${maxXP} XP`;
+  CHAPTER_META.forEach((ch,i)=>{
+    const isLocked=i>0&&!isStarted(i-1);
+    const tk=`${i}-topics`,ck=`${i}-cases`;
+    const tdone=!!state.completedQuizzes[tk],cdone=!!state.completedQuizzes[ck];
+    const ts=state.quizScores[tk]??null,cs=state.quizScores[ck]??null;
+    const stars=calcStars(ts,7)+calcStars(cs,7);
+    const item=document.createElement('div');
+    item.className=`chapter-item${isLocked?' locked':''}`;
+    item.innerHTML=`
+      <div class="chapter-header" onclick="toggleCh(${i},this)">
+        <div class="ch-num">${ch.num}</div>
+        <div class="ch-info"><div class="ch-title">${ch.title}</div><div class="ch-sub">${ch.sub}</div></div>
+        <div class="ch-right">
+          <div class="ch-stars">${[1,2,3,4,5,6].map(s=>`<span class="ch-star${s<=stars?' on':''}">${s<=stars?'★':'☆'}</span>`).join('')}</div>
+          ${isLocked?'<span class="ch-lock">🔒</span>':''}
+          ${tdone&&cdone?'<span class="ch-done">✓</span>':''}
+        </div>
+      </div>
+      <div class="chapter-quizzes" id="cq-${i}">
+        <button class="quiz-type-btn" onclick="go(${i},'topics')">
+          <div class="qtb-label">Track 1</div>
+          <div class="qtb-title">📘 Topics Quiz</div>
+          <div class="qtb-desc">Doctrines, statutes & principles</div>
+          ${ts!==null?`<div class="qtb-score">Best: ${ts}/7 · ${calcStars(ts,7)}★</div>`:''}
+        </button>
+        <button class="quiz-type-btn" onclick="go(${i},'cases')">
+          <div class="qtb-label">Track 2</div>
+          <div class="qtb-title">⚖️ Cases Quiz</div>
+          <div class="qtb-desc">Landmark cases, holdings & facts</div>
+          ${cs!==null?`<div class="qtb-score">Best: ${cs}/7 · ${calcStars(cs,7)}★</div>`:''}
+        </button>
+      </div>`;
+    if(!isLocked)item.querySelector('.chapter-header').style.cursor='pointer';
+    list.appendChild(item);
+  });
+}
+
+function toggleCh(i,hdr){
+  const item=hdr.closest('.chapter-item');
+  if(item.classList.contains('locked'))return;
+  const open=item.classList.contains('open');
+  document.querySelectorAll('.chapter-item.open').forEach(el=>el.classList.remove('open'));
+  if(!open)item.classList.add('open');
+}
+
+function go(chId,track){
+  const entry=DATA.find(d=>d.ch===chId&&d.track===track);
+  if(!entry)return;
+  state.currentChapter=chId;state.currentTrack=track;
+  state.currentQ=0;state.currentScore=0;state.streak=0;
+  state.answered=false;state.reviewLog=[];
+  state.questions=entry.questions;
+  const ch=CHAPTER_META[chId];
+  document.getElementById('quizChapterName').textContent=`${ch.num} ${ch.title}`;
+  document.getElementById('quizTypeTag').textContent=track==='topics'?'📘 Topics Quiz — Doctrines & Principles':'⚖️ Cases Quiz — Landmark Cases';
+  document.getElementById('quizLiveScore').textContent='0';
+  document.getElementById('quizProgFill').style.width='0%';
+  showScreen('quiz');renderQ();
+}
+
+function renderQ(){
+  const q=state.questions[state.currentQ];
+  const total=state.questions.length;
+  state.answered=false;
+  document.getElementById('quizLiveScore').textContent=state.currentScore;
+  document.getElementById('quizProgFill').style.width=((state.currentQ/total)*100)+'%';
+  const tl=q.type==='mc'?'Multiple Choice':q.type==='tf'?'True / False':'Fill in the Blank';
+  let inp='';
+  if(q.type==='mc'){
+    const L=['A','B','C','D'];
+    inp=`<div class="options-grid">${q.opts.map((o,i)=>`<button class="opt-btn" data-idx="${i}" onclick="aMC(this,${i})"><span class="opt-letter">${L[i]}</span>${o}</button>`).join('')}</div>`;
+  }else if(q.type==='tf'){
+    inp=`<div class="tf-row"><button class="tf-btn" data-val="true" onclick="aTF(this,true)">TRUE</button><button class="tf-btn" data-val="false" onclick="aTF(this,false)">FALSE</button></div>`;
+  }else{
+    inp=`<div class="fill-wrap"><input class="fill-input" id="fi" type="text" placeholder="Type your answer…" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')aFill()"><button class="btn-check" id="fc" onclick="aFill()">CHECK →</button></div>`;
+  }
+  const area=document.getElementById('questionArea');
+  area.innerHTML='';
+  const card=document.createElement('div');
+  card.className='q-card';
+  card.innerHTML=`
+    <div class="q-num">Q${state.currentQ+1} of ${total}</div>
+    <div class="q-badge">${tl}</div>
+    <div class="q-text">${q.q}</div>
+    ${inp}
+    <div class="feedback" id="fb"></div>
+    <div class="reveal-wrap" id="rw" style="display:none">
+      <div class="reveal-tap" onclick="doReveal()">▼ TAP TO REVEAL EXPLANATION</div>
+      <div class="reveal-body" id="rb">
+        <div class="rl">EXPLANATION</div>
+        ${q.explain}
+        ${q.cite?`<div class="case-cite">📚 ${q.cite}</div>`:''}
+      </div>
+    </div>
+    <button class="btn-next" id="bn" onclick="nextQ()">${state.currentQ+1<total?'NEXT QUESTION →':'SEE RESULTS →'}</button>`;
+  area.appendChild(card);
+  if(q.type==='fill')setTimeout(()=>{const i=document.getElementById('fi');if(i)i.focus();},80);
+}
+
+function aMC(btn,idx){
+  if(state.answered)return;
+  state.answered=true;
+  const q=state.questions[state.currentQ];
+  document.querySelectorAll('.opt-btn').forEach(b=>{b.disabled=true;if(parseInt(b.dataset.idx)===q.answer)b.classList.add('correct');});
+  if(idx!==q.answer)btn.classList.add('wrong');
+  resolve(idx===q.answer,q);
+}
+function aTF(btn,val){
+  if(state.answered)return;
+  state.answered=true;
+  const q=state.questions[state.currentQ];
+  const ok=val===q.answer;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.disabled=true);
+  if(ok)btn.classList.add('correct');
+  else{btn.classList.add('wrong');document.querySelector(`.tf-btn[data-val="${q.answer}"]`).classList.add('correct');}
+  resolve(ok,q);
+}
+function aFill(){
+  if(state.answered)return;
+  const inp=document.getElementById('fi'),btn=document.getElementById('fc');
+  if(!inp||!inp.value.trim())return;
+  state.answered=true;
+  const q=state.questions[state.currentQ];
+  const uv=inp.value.trim().toLowerCase(),cv=q.answer.toLowerCase();
+  const ok=uv===cv||uv.replace(/[^a-z0-9]/g,'')===cv.replace(/[^a-z0-9]/g,'');
+  inp.disabled=true;btn.disabled=true;
+  inp.classList.add(ok?'correct':'wrong');
+  if(!ok){const h=document.createElement('div');h.style.cssText='font-size:.7rem;color:var(--correct);margin-top:.4rem;font-family:IBM Plex Mono,monospace';h.textContent=`Correct: ${q.answer}`;inp.parentNode.appendChild(h);}
+  resolve(ok,q);
+}
+function resolve(ok,q){
+  if(ok){state.currentScore++;state.streak++;showXP('+10 XP');if(state.streak>=3)showST(state.streak);}else state.streak=0;
+  const ans=q.type==='tf'?String(q.answer):(q.type==='fill'?q.answer:q.opts[q.answer]);
+  state.reviewLog.push({q:q.q,ok,ans});
+  const fb=document.getElementById('fb');
+  fb.className=`feedback show ${ok?'ok':'bad'}`;
+  fb.innerHTML=`<span class="fb-icon">${ok?'✓':'✗'}</span><span>${ok?'Correct. Well reasoned.':'Incorrect. Review the explanation below.'}</span>`;
+  document.getElementById('rw').style.display='block';
+  document.getElementById('bn').classList.add('show');
+}
+function doReveal(){
+  const w=document.getElementById('rw'),b=document.getElementById('rb');
+  if(w.classList.contains('open'))return;
+  w.classList.add('open');b.classList.add('show');
+  w.querySelector('.reveal-tap').textContent='EXPLANATION';
+}
+function nextQ(){
+  state.currentQ++;
+  if(state.currentQ>=state.questions.length)finish();
+  else renderQ();
+}
+function finish(){
+  const sc=state.currentScore,tot=state.questions.length,xp=sc*10;
+  const key=`${state.currentChapter}-${state.currentTrack}`;
+  state.completedQuizzes[key]=true;
+  state.quizScores[key]=Math.max(state.quizScores[key]??0,sc);
+  state.totalXP+=xp;
+  save();
+  if(sc>=Math.ceil(tot*.7))confetti();
+  const pct=Math.round((sc/tot)*100);
+  const vm={100:'Distinction. Outstanding.',85:'Merit. Excellent work.',70:'Credit. Good performance.',50:'Pass. Review weak areas.',0:'Refer. Further study required.'};
+  const v=Object.keys(vm).reverse().find(k=>pct>=parseInt(k));
+  const stars=calcStars(sc,tot);
+  const ch=CHAPTER_META[state.currentChapter];
+  document.getElementById('resEyebrow').textContent=`${ch.num} ${ch.title} — ${state.currentTrack==='topics'?'Topics Quiz':'Cases Quiz'}`;
+  document.getElementById('resBig').textContent=sc;
+  document.getElementById('resDenom').textContent=`/${tot}`;
+  document.getElementById('resVerdict').textContent=vm[v];
+  document.getElementById('resBadges').innerHTML=`
+    <div class="res-badge"><span class="bi">⭐</span><strong>${['','★','★★','★★★'][stars]}</strong>Grade</div>
+    <div class="res-badge"><span class="bi">⚡</span><strong>+${xp} XP</strong>Earned</div>
+    <div class="res-badge"><span class="bi">📊</span><strong>${pct}%</strong>Score</div>
+    <div class="res-badge"><span class="bi">🔥</span><strong>${state.streak}</strong>Streak</div>`;
+  document.getElementById('reviewSection').innerHTML='<h3>Question Review</h3>'+
+    state.reviewLog.map(r=>`<div class="review-item"><div class="r-dot ${r.ok?'c':'w'}"></div><div><div class="r-q">${r.q}</div><div class="r-a">${r.ok?'✓ Correct':'✗ Answer: '+r.ans}</div></div></div>`).join('');
+  showScreen('results');
+}
+function retryQuiz(){go(state.currentChapter,state.currentTrack);}
+function showXP(t){const el=document.createElement('div');el.className='xp-pop';el.textContent=t;el.style.cssText=`top:${70+Math.random()*40}px;left:${45+Math.random()*25}%`;document.body.appendChild(el);setTimeout(()=>el.remove(),800);}
+let stT;
+function showST(n){const t=document.getElementById('streakToast');t.textContent=`🔥 ${n}x STREAK!`;t.classList.add('show');clearTimeout(stT);stT=setTimeout(()=>t.classList.remove('show'),1800);}
+function confetti(){const c=['#c9a84c','#e8c97a','#f0e8d5','#fff','#4caf7d','#c94c4c'];for(let i=0;i<55;i++){const el=document.createElement('div');el.className='confetti-piece';el.style.cssText=`left:${Math.random()*100}vw;top:-10px;width:${5+Math.random()*6}px;height:${5+Math.random()*6}px;background:${c[Math.floor(Math.random()*c.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}}
+load();
+</script>
+</body>
+</html>
